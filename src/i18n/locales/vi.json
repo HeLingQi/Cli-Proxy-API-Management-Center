@@ -206,7 +206,12 @@
       "sync": "Đồng bộ",
       "dynamic": "Giá động",
       "sync_success": "Đã đồng bộ {{matched}} model · {{unmatched}} không khớp",
-      "sync_error": "Không thể đồng bộ giá model"
+      "sync_error": "Không thể đồng bộ giá model",
+      "pricing_tiers": "Bậc giá",
+      "tiered": "Theo bậc",
+      "standard_tier": "Bậc tiêu chuẩn",
+      "tier_name": "Bậc",
+      "expression_detail": "Biểu thức tính phí"
     }
   },
   "dashboard": {

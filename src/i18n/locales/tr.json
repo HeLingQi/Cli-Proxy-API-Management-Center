@@ -206,7 +206,12 @@
       "sync": "Senkronize et",
       "dynamic": "Dinamik",
       "sync_success": "{{matched}} model eşitlendi · {{unmatched}} eşleşmedi",
-      "sync_error": "Model fiyatları eşitlenemedi"
+      "sync_error": "Model fiyatları eşitlenemedi",
+      "pricing_tiers": "Fiyatlandırma kademeleri",
+      "tiered": "Kademeli",
+      "standard_tier": "Standart kademe",
+      "tier_name": "Kademe",
+      "expression_detail": "Faturalandırma ifadesi"
     }
   },
   "dashboard": {

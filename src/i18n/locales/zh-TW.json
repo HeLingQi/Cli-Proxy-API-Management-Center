@@ -206,7 +206,12 @@
       "sync": "同步",
       "dynamic": "動態計價",
       "sync_success": "已同步 {{matched}} 個模型 · {{unmatched}} 個未匹配",
-      "sync_error": "同步模型價格失敗"
+      "sync_error": "同步模型價格失敗",
+      "pricing_tiers": "分檔價格",
+      "tiered": "多檔計價",
+      "standard_tier": "標準檔",
+      "tier_name": "檔位",
+      "expression_detail": "計費表達式"
     }
   },
   "dashboard": {

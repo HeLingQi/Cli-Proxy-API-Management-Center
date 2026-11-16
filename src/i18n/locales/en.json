@@ -206,7 +206,12 @@
       "sync": "Sync",
       "dynamic": "Dynamic",
       "sync_success": "Synchronized {{matched}} models · {{unmatched}} unmatched",
-      "sync_error": "Failed to synchronize model pricing"
+      "sync_error": "Failed to synchronize model pricing",
+      "pricing_tiers": "Pricing tiers",
+      "tiered": "Tiered",
+      "standard_tier": "Standard tier",
+      "tier_name": "Tier",
+      "expression_detail": "Billing expression"
     }
   },
   "dashboard": {

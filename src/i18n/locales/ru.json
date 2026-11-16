@@ -205,7 +205,12 @@
       "sync": "Синхронизировать",
       "dynamic": "Динамическая",
       "sync_success": "Синхронизировано {{matched}} · не найдено {{unmatched}}",
-      "sync_error": "Не удалось синхронизировать цены"
+      "sync_error": "Не удалось синхронизировать цены",
+      "pricing_tiers": "Уровни цен",
+      "tiered": "Тарифы",
+      "standard_tier": "Базовый уровень",
+      "tier_name": "Уровень",
+      "expression_detail": "Формула тарификации"
     }
   },
   "dashboard": {

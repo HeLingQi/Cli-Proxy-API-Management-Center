@@ -206,7 +206,12 @@
       "sync": "동기화",
       "dynamic": "동적 요금",
       "sync_success": "{{matched}}개 모델 동기화 · {{unmatched}}개 불일치",
-      "sync_error": "모델 요금을 동기화하지 못했습니다"
+      "sync_error": "모델 요금을 동기화하지 못했습니다",
+      "pricing_tiers": "가격 티어",
+      "tiered": "티어별",
+      "standard_tier": "기본 티어",
+      "tier_name": "티어",
+      "expression_detail": "요금 계산식"
     }
   },
   "dashboard": {

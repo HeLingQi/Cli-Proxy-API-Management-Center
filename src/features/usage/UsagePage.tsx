@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Modal } from '@/components/ui/Modal';
+import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
   TableBody,
@@ -14,7 +15,19 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table/Table';
-import { IconPencil, IconPlus, IconRefreshCw, IconTrash2 } from '@/components/ui/icons';
+import {
+  IconCheckCircle2,
+  IconAlertTriangle,
+  IconPencil,
+  IconPlus,
+  IconRefreshCw,
+  IconSearch,
+  IconTrash2,
+  IconX,
+} from '@/components/ui/icons';
+import { Meter } from '@/features/dashboard/components/Meter';
+import { toneForSuccessRate } from '@/features/dashboard/utils';
+import { useRevealGroup } from '@/hooks/motion';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import {
   usageHistoryApi,
@@ -25,10 +38,23 @@ import {
 } from '@/services/api/usageHistory';
 import { useAuthStore, useNotificationStore } from '@/stores';
 import { getErrorMessage } from '@/utils/helpers';
-import { isUsageDateRangeValid, pricingDraftToModel, type PricingDraft } from './model';
+import {
+  buildUsageDatePreset,
+  isUsageDateRangeValid,
+  pricingDraftToModel,
+  resolveModelDisplayPrices,
+  type PricingDraft,
+} from './model';
 import styles from './UsagePage.module.scss';
 
 type UsageView = 'summary' | 'events' | 'pricing';
+type EventStatusFilter = 'all' | 'success' | 'failed';
+
+type MetaSegment = {
+  key: string;
+  text: string;
+  tone?: 'default' | 'ok' | 'danger' | 'muted';
+};
 
 const emptyPricingDraft: PricingDraft = {
   provider: '',
@@ -48,39 +74,90 @@ const formatUSD = (micros: number, locale: string) =>
     minimumFractionDigits: micros > 0 && micros < 10_000 ? 4 : 2,
     maximumFractionDigits: 6,
   }).format(micros / 1_000_000);
-const formatPrice = (value: number, locale: string) =>
-  new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(value);
+const formatPrice = (value: number | null, locale: string) =>
+  value === null
+    ? '—'
+    : `$${new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(value)}`;
 
-function UsageShell({ view, children }: { view: UsageView; children: ReactNode }) {
+function UsageShell({
+  view,
+  meta,
+  actions,
+  toolbarExtra,
+  children,
+}: {
+  view: UsageView;
+  meta?: MetaSegment[];
+  actions?: ReactNode;
+  toolbarExtra?: ReactNode;
+  children: ReactNode;
+}) {
   const { t } = useTranslation();
+  const revealRef = useRevealGroup<HTMLElement>();
   const tabs: Array<{ view: UsageView; path: string }> = [
     { view: 'summary', path: '/usage' },
     { view: 'events', path: '/usage/events' },
     { view: 'pricing', path: '/usage/pricing' },
   ];
 
+  const toneClass: Record<NonNullable<MetaSegment['tone']>, string> = {
+    default: styles.metaDefault,
+    ok: styles.metaOk,
+    danger: styles.metaDanger,
+    muted: styles.metaMuted,
+  };
+
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>{t('usage.title')}</h1>
-          <p className={styles.description}>{t('usage.description')}</p>
+      <header className={styles.header} ref={revealRef}>
+        <div className={styles.copy}>
+          <h1 className={styles.title} data-reveal>
+            {t('usage.title')}
+          </h1>
+          <p className={styles.meta} data-reveal>
+            {meta && meta.length > 0 ? (
+              meta.map((segment, index) => (
+                <Fragment key={segment.key}>
+                  {index > 0 && (
+                    <span className={styles.metaDot} aria-hidden="true">
+                      ·
+                    </span>
+                  )}
+                  <span className={toneClass[segment.tone ?? 'default']}>{segment.text}</span>
+                </Fragment>
+              ))
+            ) : (
+              <span className={styles.metaMuted}>{t('usage.description')}</span>
+            )}
+          </p>
         </div>
-        <nav className={styles.tabs} aria-label={t('usage.tabs_label')}>
-          {tabs.map((tab) => (
-            <NavLink
-              key={tab.view}
-              to={tab.path}
-              end={tab.view === 'summary'}
-              className={`${styles.tab} ${view === tab.view ? styles.tabActive : ''}`}
-              aria-current={view === tab.view ? 'page' : undefined}
-            >
-              {t(`usage.tabs.${tab.view}`)}
-            </NavLink>
-          ))}
-        </nav>
+        {actions ? (
+          <div className={styles.actions} data-reveal>
+            {actions}
+          </div>
+        ) : null}
       </header>
-      {children}
+
+      <section className={styles.workbench}>
+        <div className={styles.toolbar}>
+          <nav className={styles.segmented} aria-label={t('usage.tabs_label')}>
+            {tabs.map((tab) => (
+              <NavLink
+                key={tab.view}
+                to={tab.path}
+                end={tab.view === 'summary'}
+                className={`${styles.segment} ${view === tab.view ? styles.segmentActive : ''}`}
+                aria-current={view === tab.view ? 'page' : undefined}
+              >
+                {t(`usage.tabs.${tab.view}`)}
+              </NavLink>
+            ))}
+          </nav>
+          {toolbarExtra ? <div className={styles.toolbarRight}>{toolbarExtra}</div> : null}
+        </div>
+
+        {children}
+      </section>
     </div>
   );
 }
@@ -113,32 +190,104 @@ export function UsageSummaryPage() {
     void load();
   }, [load]);
 
+  const applyPreset = (days: number) => {
+    const next = buildUsageDatePreset(days);
+    setFrom(next.from);
+    setTo(next.to);
+    setError('');
+    if (range.from === next.from && range.to === next.to) void load();
+    else setRange(next);
+  };
+
+  const activePreset = useMemo(() => {
+    for (const days of [1, 7, 30]) {
+      const preset = buildUsageDatePreset(days);
+      if (from === preset.from && to === preset.to) return days;
+    }
+    return null;
+  }, [from, to]);
+
   const totals = summary?.totals;
   const requestCount = totals?.requests ?? 0;
+  const successRate =
+    totals && requestCount > 0 ? (totals.success / requestCount) * 100 : null;
+  const successTone = toneForSuccessRate(successRate);
+
+  const tileAccents = {
+    good: 'var(--viz-success)',
+    warning: 'var(--amber-color)',
+    critical: 'var(--viz-failure)',
+    idle: 'var(--text-quaternary)',
+  } as const;
+
+  const metaSegments = useMemo<MetaSegment[]>(() => {
+    const items: MetaSegment[] = [
+      {
+        key: 'range',
+        text: range.from === range.to ? `${range.from} UTC` : `${range.from} → ${range.to} UTC`,
+        tone: 'default',
+      },
+    ];
+    if (totals) {
+      items.push({
+        key: 'requests',
+        text: `${formatNumber(totals.requests, i18n.language)} ${t('usage.metrics.requests')}`,
+        tone: totals.requests > 0 ? 'ok' : 'muted',
+      });
+      if (totals.failed > 0) {
+        items.push({
+          key: 'failed',
+          text: `${formatNumber(totals.failed, i18n.language)} ${t('usage.columns.failed')}`,
+          tone: 'danger',
+        });
+      }
+    }
+    items.push({
+      key: 'utc',
+      text: t('usage.summary.utc_note'),
+      tone: 'muted',
+    });
+    return items;
+  }, [i18n.language, range.from, range.to, t, totals]);
+
   const metrics = totals
     ? [
         {
+          key: 'requests',
           label: t('usage.metrics.requests'),
           value: formatNumber(totals.requests, i18n.language),
           hint: t('usage.summary.success_hint', {
             success: formatNumber(totals.success, i18n.language),
             failed: formatNumber(totals.failed, i18n.language),
           }),
+          accent: tileAccents[successTone],
+          meter: successRate,
+          tone: successTone,
         },
         {
+          key: 'tokens',
           label: t('usage.metrics.tokens'),
           value: formatNumber(totals.total_tokens, i18n.language),
           hint: t('usage.summary.tokens_hint', {
             input: formatNumber(totals.input_tokens, i18n.language),
             output: formatNumber(totals.output_tokens, i18n.language),
           }),
+          accent: totals.total_tokens > 0 ? 'var(--viz-success)' : 'var(--border-hover)',
+          meter: null,
+          tone: undefined,
         },
         {
+          key: 'cost',
           label: t('usage.metrics.cost'),
           value: formatUSD(totals.effective_cost_usd_micros, i18n.language),
           hint: t('usage.summary.cost_hint'),
+          accent:
+            totals.effective_cost_usd_micros > 0 ? 'var(--amber-color)' : 'var(--border-hover)',
+          meter: null,
+          tone: undefined,
         },
         {
+          key: 'latency',
           label: t('usage.metrics.latency'),
           value:
             requestCount > 0
@@ -150,90 +299,162 @@ export function UsageSummaryPage() {
                 ? formatNumber(Math.round(totals.ttft_total_ms / requestCount), i18n.language)
                 : '—',
           }),
+          accent: 'var(--border-hover)',
+          meter: null,
+          tone: undefined,
         },
       ]
     : [];
 
-  return (
-    <UsageShell view="summary">
-      <form
-        className={styles.toolbar}
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (!isUsageDateRangeValid(from, to)) {
-            setError(t('usage.summary.invalid_range'));
-            return;
-          }
-          if (range.from === from && range.to === to) void load();
-          else setRange({ from, to });
-        }}
-      >
-        <Input
-          label={t('usage.summary.from')}
+  const dateFilterBar = (
+    <form
+      className={styles.dateBar}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!isUsageDateRangeValid(from, to)) {
+          setError(t('usage.summary.invalid_range'));
+          return;
+        }
+        setError('');
+        if (range.from === from && range.to === to) void load();
+        else setRange({ from, to });
+      }}
+    >
+      <div className={styles.presetGroup} role="group">
+        {([1, 7, 30] as const).map((days) => (
+          <button
+            key={days}
+            type="button"
+            className={`${styles.presetBtn} ${activePreset === days ? styles.presetBtnActive : ''}`}
+            onClick={() => applyPreset(days)}
+            disabled={!connected || loading}
+          >
+            {days === 1 ? '1D' : `${days}D`}
+          </button>
+        ))}
+      </div>
+      <div className={styles.dateCapsule}>
+        <input
+          className={styles.dateInput}
           type="date"
+          aria-label={t('usage.summary.from')}
           value={from}
           onChange={(event) => setFrom(event.target.value)}
         />
-        <Input
-          label={t('usage.summary.to')}
+        <span className={styles.dateSep} aria-hidden="true">
+          →
+        </span>
+        <input
+          className={styles.dateInput}
           type="date"
+          aria-label={t('usage.summary.to')}
           value={to}
           onChange={(event) => setTo(event.target.value)}
         />
-        <Button type="submit" loading={loading} disabled={!connected}>
-          {t('usage.summary.apply')}
-        </Button>
-      </form>
+      </div>
+      <button
+        type="submit"
+        className={styles.applyBtn}
+        disabled={!connected || loading}
+      >
+        {loading ? <LoadingSpinner size={13} /> : null}
+        {t('usage.summary.apply')}
+      </button>
+    </form>
+  );
 
-      {error && <div className="error-box">{error}</div>}
-      {loading && !summary ? (
-        <div className={styles.loading}>
-          <LoadingSpinner />
+  return (
+    <UsageShell view="summary" meta={metaSegments} toolbarExtra={dateFilterBar}>
+      {error && (
+        <div className={styles.errorBanner} role="alert">
+          {error}
         </div>
+      )}
+      {loading && !summary ? (
+        <>
+          <div className={styles.statsRow} aria-hidden="true">
+            {Array.from({ length: 4 }, (_, index) => (
+              <Skeleton key={index} height={132} rounded={14} />
+            ))}
+          </div>
+          <Skeleton height={220} rounded={16} />
+        </>
       ) : summary ? (
         <>
-          <section className={styles.metrics} aria-label={t('usage.summary.metrics_label')}>
+          <section className={styles.statsRow} aria-label={t('usage.summary.metrics_label')}>
             {metrics.map((metric) => (
-              <article className={styles.metric} key={metric.label}>
-                <span>{metric.label}</span>
-                <strong>{metric.value}</strong>
-                <small>{metric.hint}</small>
+              <article
+                className={styles.statTile}
+                key={metric.key}
+                style={{ '--tile-accent': metric.accent } as CSSProperties}
+              >
+                <span className={styles.statLabel}>{metric.label}</span>
+                <strong className={styles.statValue}>{metric.value}</strong>
+                {metric.meter !== null && metric.meter !== undefined && (
+                  <Meter
+                    value={metric.meter}
+                    tone={metric.tone}
+                    ariaLabel={metric.label}
+                    className={styles.statMeter}
+                  />
+                )}
+                <span className={styles.statHint}>{metric.hint}</span>
               </article>
             ))}
           </section>
-          <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2>{t('usage.summary.daily_title')}</h2>
-              <span>{t('usage.summary.utc_note')}</span>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('usage.columns.date')}</TableHead>
-                  <TableHead alignRight>{t('usage.metrics.requests')}</TableHead>
-                  <TableHead alignRight>{t('usage.columns.success')}</TableHead>
-                  <TableHead alignRight>{t('usage.columns.failed')}</TableHead>
-                  <TableHead alignRight>{t('usage.metrics.tokens')}</TableHead>
-                  <TableHead alignRight>{t('usage.metrics.cost')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {summary.days.map((day) => (
-                  <TableRow key={day.date}>
-                    <TableCell className={styles.mono}>{day.date}</TableCell>
-                    <TableCell alignRight>{formatNumber(day.requests, i18n.language)}</TableCell>
-                    <TableCell alignRight>{formatNumber(day.success, i18n.language)}</TableCell>
-                    <TableCell alignRight>{formatNumber(day.failed, i18n.language)}</TableCell>
-                    <TableCell alignRight>
-                      {formatNumber(day.total_tokens, i18n.language)}
-                    </TableCell>
-                    <TableCell alignRight>
-                      {formatUSD(day.effective_cost_usd_micros, i18n.language)}
-                    </TableCell>
+
+          <section className={styles.panel}>
+            <header className={styles.panelHead}>
+              <div className={styles.panelHeadCopy}>
+                <span className={styles.eyebrow}>{t('usage.summary.utc_note')}</span>
+                <h2 className={styles.panelTitle}>{t('usage.summary.daily_title')}</h2>
+              </div>
+            </header>
+
+            {summary.days.length === 0 ? (
+              <EmptyState
+                title={t('usage.events.empty')}
+                description={t('usage.events.empty_desc')}
+              />
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('usage.columns.date')}</TableHead>
+                    <TableHead alignRight>{t('usage.metrics.requests')}</TableHead>
+                    <TableHead alignRight>{t('usage.columns.success')}</TableHead>
+                    <TableHead alignRight>{t('usage.columns.failed')}</TableHead>
+                    <TableHead alignRight>{t('usage.metrics.tokens')}</TableHead>
+                    <TableHead alignRight>{t('usage.metrics.cost')}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {summary.days.map((day) => (
+                    <TableRow key={day.date}>
+                      <TableCell className={styles.mono}>{day.date}</TableCell>
+                      <TableCell alignRight className={styles.mono}>
+                        {formatNumber(day.requests, i18n.language)}
+                      </TableCell>
+                      <TableCell alignRight className={`${styles.mono} ${styles.textSuccess}`}>
+                        {formatNumber(day.success, i18n.language)}
+                      </TableCell>
+                      <TableCell
+                        alignRight
+                        className={`${styles.mono} ${day.failed > 0 ? styles.textDanger : styles.textMuted}`}
+                      >
+                        {formatNumber(day.failed, i18n.language)}
+                      </TableCell>
+                      <TableCell alignRight className={styles.mono}>
+                        {formatNumber(day.total_tokens, i18n.language)}
+                      </TableCell>
+                      <TableCell alignRight className={styles.mono}>
+                        {formatUSD(day.effective_cost_usd_micros, i18n.language)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </section>
         </>
       ) : null}
@@ -249,6 +470,8 @@ export function UsageEventsPage() {
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<EventStatusFilter>('all');
 
   const load = useCallback(
     async (before?: number) => {
@@ -276,21 +499,128 @@ export function UsageEventsPage() {
     void refresh();
   }, [refresh]);
 
+  const filteredItems = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return items.filter((item) => {
+      if (statusFilter === 'success' && item.failed) return false;
+      if (statusFilter === 'failed' && !item.failed) return false;
+      if (!query) return true;
+      return (
+        item.provider?.toLowerCase().includes(query) ||
+        item.model?.toLowerCase().includes(query) ||
+        item.request_id?.toLowerCase().includes(query) ||
+        item.trace_id?.toLowerCase().includes(query)
+      );
+    });
+  }, [items, search, statusFilter]);
+
+  const metaSegments = useMemo<MetaSegment[]>(() => {
+    const failedCount = items.filter((item) => item.failed).length;
+    const segments: MetaSegment[] = [
+      {
+        key: 'total',
+        text: `${formatNumber(items.length, i18n.language)} ${t('usage.events.title')}`,
+        tone: items.length > 0 ? 'ok' : 'muted',
+      },
+    ];
+    if (failedCount > 0) {
+      segments.push({
+        key: 'failed',
+        text: `${formatNumber(failedCount, i18n.language)} ${t('usage.events.failed')}`,
+        tone: 'danger',
+      });
+    }
+    segments.push({
+      key: 'redacted',
+      text: t('usage.events.redacted_note'),
+      tone: 'muted',
+    });
+    return segments;
+  }, [i18n.language, items, t]);
+
+  const eventsToolbar = (
+    <div className={styles.filterRow}>
+      <div className={styles.segmented} role="group" aria-label={t('usage.columns.status')}>
+        {(
+          [
+            ['all', t('auth_files.filter_all')],
+            ['success', t('usage.events.success')],
+            ['failed', t('usage.events.failed')],
+          ] as const
+        ).map(([mode, label]) => (
+          <button
+            key={mode}
+            type="button"
+            className={`${styles.segment} ${statusFilter === mode ? styles.segmentActive : ''}`}
+            aria-pressed={statusFilter === mode}
+            onClick={() => setStatusFilter(mode)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.searchBox}>
+        <IconSearch size={15} className={styles.searchIcon} aria-hidden="true" />
+        <input
+          className={styles.searchInput}
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={`${t('usage.columns.provider_model')} / ${t('usage.columns.request_id')}`}
+          aria-label={t('usage.columns.provider_model')}
+        />
+        {search && (
+          <button
+            type="button"
+            className={styles.clearSearch}
+            onClick={() => setSearch('')}
+            aria-label={t('common.close')}
+          >
+            <IconX size={13} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <UsageShell view="events">
-      {error && <div className="error-box">{error}</div>}
-      {loading ? (
-        <div className={styles.loading}>
-          <LoadingSpinner />
+    <UsageShell view="events" meta={metaSegments} toolbarExtra={eventsToolbar}>
+      {error && (
+        <div className={styles.errorBanner} role="alert">
+          {error}
         </div>
-      ) : items.length === 0 ? (
-        <EmptyState title={t('usage.events.empty')} description={t('usage.events.empty_desc')} />
+      )}
+      {loading ? (
+        <Skeleton height={280} rounded={16} />
+      ) : filteredItems.length === 0 ? (
+        <EmptyState
+          title={t('usage.events.empty')}
+          description={t('usage.events.empty_desc')}
+          action={
+            search || statusFilter !== 'all' ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setSearch('');
+                  setStatusFilter('all');
+                }}
+              >
+                {t('auth_files.filter_all')}
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>{t('usage.events.title')}</h2>
-            <span>{t('usage.events.redacted_note')}</span>
-          </div>
+        <section className={styles.panel}>
+          <header className={styles.panelHead}>
+            <div className={styles.panelHeadCopy}>
+              <span className={styles.eyebrow}>{t('usage.events.redacted_note')}</span>
+              <h2 className={styles.panelTitle}>{t('usage.events.title')}</h2>
+            </div>
+          </header>
+
           <Table>
             <TableHeader>
               <TableRow>
@@ -304,9 +634,9 @@ export function UsageEventsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((item) => (
+              {filteredItems.map((item) => (
                 <TableRow key={item.sequence}>
-                  <TableCell className={styles.nowrap}>
+                  <TableCell className={`${styles.nowrap} ${styles.mono} ${styles.textSecondary}`}>
                     {new Intl.DateTimeFormat(i18n.language, {
                       dateStyle: 'short',
                       timeStyle: 'medium',
@@ -314,23 +644,30 @@ export function UsageEventsPage() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`${styles.status} ${item.failed ? styles.statusFailed : styles.statusSuccess}`}
+                      className={`${styles.statusBadge} ${item.failed ? styles.statusFailed : styles.statusSuccess}`}
                     >
+                      {item.failed ? (
+                        <IconAlertTriangle size={13} />
+                      ) : (
+                        <IconCheckCircle2 size={13} />
+                      )}
                       {item.failed ? t('usage.events.failed') : t('usage.events.success')}
                       {item.failure_status_code ? ` · ${item.failure_status_code}` : ''}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <div className={styles.stack}>
-                      <strong>{item.provider || '—'}</strong>
-                      <span>{item.model || '—'}</span>
+                    <div className={styles.identityCell}>
+                      <span className={styles.providerChip}>{item.provider || '—'}</span>
+                      <span className={styles.modelPrimary}>{item.model || '—'}</span>
                     </div>
                   </TableCell>
-                  <TableCell alignRight>{formatNumber(item.total_tokens, i18n.language)}</TableCell>
-                  <TableCell alignRight>
+                  <TableCell alignRight className={styles.mono}>
+                    {formatNumber(item.total_tokens, i18n.language)}
+                  </TableCell>
+                  <TableCell alignRight className={styles.mono}>
                     {formatNumber(item.latency_ms, i18n.language)} ms
                   </TableCell>
-                  <TableCell alignRight>
+                  <TableCell alignRight className={styles.mono}>
                     {formatUSD(item.effective_cost_usd_micros, i18n.language)}
                   </TableCell>
                   <TableCell
@@ -343,10 +680,12 @@ export function UsageEventsPage() {
               ))}
             </TableBody>
           </Table>
+
           {nextBefore && (
             <div className={styles.loadMore}>
               <Button
                 variant="secondary"
+                size="sm"
                 loading={loadingMore}
                 onClick={() => void load(nextBefore)}
               >
@@ -369,9 +708,20 @@ export function UsagePricingPage() {
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
   const [draft, setDraft] = useState<PricingDraft | null>(null);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState<PricingModel | null>(null);
+  const [expandedTiers, setExpandedTiers] = useState<Set<string>>(() => new Set());
+
+  const toggleTierExpanded = (key: string) => {
+    setExpandedTiers((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   const load = useCallback(async () => {
     if (!connected) return;
@@ -414,18 +764,19 @@ export function UsagePricingPage() {
 
   const openEditor = (model?: PricingModel) => {
     setEditing(Boolean(model));
-    setDraft(
-      model
-        ? {
-            provider: model.provider,
-            model: model.model,
-            input: String(model.base_prices.input),
-            output: String(model.base_prices.output),
-            cacheRead: String(model.base_prices.cache_read),
-            cacheWrite: String(model.base_prices.cache_write),
-          }
-        : { ...emptyPricingDraft }
-    );
+    if (!model) {
+      setDraft({ ...emptyPricingDraft });
+      return;
+    }
+    const resolved = resolveModelDisplayPrices(model);
+    setDraft({
+      provider: model.provider,
+      model: model.model,
+      input: String(resolved.input ?? model.base_prices.input),
+      output: String(resolved.output ?? model.base_prices.output),
+      cacheRead: String(resolved.cacheRead ?? model.base_prices.cache_read),
+      cacheWrite: String(resolved.cacheWrite ?? model.base_prices.cache_write),
+    });
   };
 
   const save = async (event: FormEvent) => {
@@ -470,113 +821,261 @@ export function UsagePricingPage() {
     }
   };
 
+  const filteredModels = useMemo(() => {
+    if (!catalog) return [];
+    const query = search.trim().toLowerCase();
+    if (!query) return catalog.models;
+    return catalog.models.filter(
+      (model) =>
+        model.provider.toLowerCase().includes(query) ||
+        model.model.toLowerCase().includes(query)
+    );
+  }, [catalog, search]);
+
+  const metaSegments = useMemo<MetaSegment[]>(() => {
+    if (!catalog) {
+      return [{ key: 'desc', text: t('usage.pricing.description'), tone: 'muted' }];
+    }
+    const dynamicCount = catalog.models.filter((item) => Boolean(item.expression)).length;
+    const segments: MetaSegment[] = [
+      {
+        key: 'count',
+        text: `${formatNumber(catalog.models.length, i18n.language)} ${t('usage.pricing.title')}`,
+        tone: catalog.models.length > 0 ? 'ok' : 'muted',
+      },
+    ];
+    if (dynamicCount > 0) {
+      segments.push({
+        key: 'dynamic',
+        text: `${formatNumber(dynamicCount, i18n.language)} ${t('usage.pricing.dynamic')}`,
+        tone: 'default',
+      });
+    }
+    segments.push({
+      key: 'rev',
+      text: `rev ${catalog.revision}`,
+      tone: 'muted',
+    });
+    return segments;
+  }, [catalog, i18n.language, t]);
+
+  const headerActions = (
+    <>
+      <button
+        type="button"
+        className={styles.ghostAction}
+        onClick={() => void sync()}
+        disabled={!connected || !catalog || saving || syncing}
+      >
+        <IconRefreshCw size={14} className={syncing ? styles.spinning : undefined} />
+        {t('usage.pricing.sync')}
+      </button>
+      <button
+        type="button"
+        className={styles.primaryAction}
+        onClick={() => openEditor()}
+        disabled={!connected || !catalog || syncing}
+      >
+        <IconPlus size={15} />
+        {t('usage.pricing.add')}
+      </button>
+    </>
+  );
+
+  const searchBar = (
+    <div className={styles.searchBox}>
+      <IconSearch size={15} className={styles.searchIcon} aria-hidden="true" />
+      <input
+        className={styles.searchInput}
+        type="search"
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder={`${t('usage.columns.provider')} / ${t('usage.columns.model')}`}
+        aria-label={t('usage.columns.model')}
+      />
+      {search && (
+        <button
+          type="button"
+          className={styles.clearSearch}
+          onClick={() => setSearch('')}
+          aria-label={t('common.close')}
+        >
+          <IconX size={13} aria-hidden="true" />
+        </button>
+      )}
+    </div>
+  );
+
   return (
-    <UsageShell view="pricing">
-      <div className={styles.pricingToolbar}>
-        <div>
-          <h2>{t('usage.pricing.title')}</h2>
-          <p>{t('usage.pricing.description')}</p>
+    <UsageShell
+      view="pricing"
+      meta={metaSegments}
+      actions={headerActions}
+      toolbarExtra={searchBar}
+    >
+      {error && (
+        <div className={styles.errorBanner} role="alert">
+          {error}
         </div>
-        <div className={styles.pricingActions}>
-          <Button
-            variant="secondary"
-            loading={syncing}
-            onClick={() => void sync()}
-            disabled={!connected || !catalog || saving}
-          >
-            <span className={styles.buttonLabel}>
-              <IconRefreshCw size={16} />
-              {t('usage.pricing.sync')}
-            </span>
-          </Button>
-          <Button onClick={() => openEditor()} disabled={!connected || !catalog || syncing}>
-            <span className={styles.buttonLabel}>
-              <IconPlus size={16} />
-              {t('usage.pricing.add')}
-            </span>
-          </Button>
-        </div>
-      </div>
-      {error && <div className="error-box">{error}</div>}
+      )}
       {loading && !catalog ? (
-        <div className={styles.loading}>
-          <LoadingSpinner />
-        </div>
-      ) : catalog && catalog.models.length === 0 ? (
+        <Skeleton height={280} rounded={16} />
+      ) : catalog && filteredModels.length === 0 ? (
         <EmptyState
           title={t('usage.pricing.empty')}
           description={t('usage.pricing.empty_desc')}
           action={
-            <Button variant="secondary" onClick={() => openEditor()}>
-              {t('usage.pricing.add')}
-            </Button>
+            search ? (
+              <Button variant="secondary" size="sm" onClick={() => setSearch('')}>
+                {t('auth_files.filter_all')}
+              </Button>
+            ) : (
+              <Button variant="secondary" size="sm" onClick={() => openEditor()}>
+                {t('usage.pricing.add')}
+              </Button>
+            )
           }
         />
       ) : catalog ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t('usage.columns.provider')}</TableHead>
-              <TableHead>{t('usage.columns.model')}</TableHead>
-              <TableHead alignRight>{t('usage.pricing.input')}</TableHead>
-              <TableHead alignRight>{t('usage.pricing.output')}</TableHead>
-              <TableHead alignRight>{t('usage.pricing.cache_read')}</TableHead>
-              <TableHead alignRight>{t('usage.pricing.cache_write')}</TableHead>
-              <TableHead alignRight>{t('usage.columns.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {catalog.models.map((model) => (
-              <TableRow key={`${model.provider}/${model.model}`}>
-                <TableCell>{model.provider}</TableCell>
-                <TableCell>
-                  <div className={styles.stack}>
-                    <span className={styles.mono}>{model.model}</span>
-                    {model.expression && (
-                      <code className={styles.expression} title={model.expression}>
-                        {model.expression}
-                      </code>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell alignRight>
-                  {model.expression ? '—' : formatPrice(model.base_prices.input, i18n.language)}
-                </TableCell>
-                <TableCell alignRight>
-                  {model.expression ? '—' : formatPrice(model.base_prices.output, i18n.language)}
-                </TableCell>
-                <TableCell alignRight>
-                  {model.expression
-                    ? '—'
-                    : formatPrice(model.base_prices.cache_read, i18n.language)}
-                </TableCell>
-                <TableCell alignRight>
-                  {model.expression
-                    ? t('usage.pricing.dynamic')
-                    : formatPrice(model.base_prices.cache_write, i18n.language)}
-                </TableCell>
-                <TableCell alignRight>
-                  <div className={styles.rowActions}>
-                    <button
-                      type="button"
-                      onClick={() => openEditor(model)}
-                      aria-label={t('common.edit')}
-                    >
-                      <IconPencil size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleting(model)}
-                      aria-label={t('common.delete')}
-                    >
-                      <IconTrash2 size={16} />
-                    </button>
-                  </div>
-                </TableCell>
+        <section className={styles.panel}>
+          <header className={styles.panelHead}>
+            <div className={styles.panelHeadCopy}>
+              <span className={styles.eyebrow}>USD / 1M TOKENS</span>
+              <h2 className={styles.panelTitle}>{t('usage.pricing.title')}</h2>
+              <p className={styles.panelDescription}>{t('usage.pricing.description')}</p>
+            </div>
+          </header>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('usage.columns.provider')}</TableHead>
+                <TableHead>{t('usage.columns.model')}</TableHead>
+                <TableHead alignRight>{t('usage.pricing.input')}</TableHead>
+                <TableHead alignRight>{t('usage.pricing.output')}</TableHead>
+                <TableHead alignRight>{t('usage.pricing.cache_read')}</TableHead>
+                <TableHead alignRight>{t('usage.pricing.cache_write')}</TableHead>
+                <TableHead alignRight>{t('usage.columns.actions')}</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredModels.map((model) => {
+                const modelKey = `${model.provider}/${model.model}`;
+                const display = resolveModelDisplayPrices(model);
+                const isExpanded = expandedTiers.has(modelKey);
+                const hasMultipleTiers = display.tiers.length > 1;
+
+                return (
+                  <Fragment key={modelKey}>
+                    <TableRow className={isExpanded ? styles.parentRowExpanded : undefined}>
+                      <TableCell>
+                        <span className={styles.providerChip}>{model.provider}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className={styles.modelCell}>
+                          <div className={styles.modelHeader}>
+                            <span className={styles.modelPrimary}>{model.model}</span>
+                            {display.isDynamic && (
+                              <span
+                                className={styles.dynamicTag}
+                                title={model.expression}
+                              >
+                                {display.isConditional
+                                  ? t('usage.pricing.tiered')
+                                  : t('usage.pricing.dynamic')}
+                              </span>
+                            )}
+                            {hasMultipleTiers && (
+                              <button
+                                type="button"
+                                className={styles.tierToggleBtn}
+                                onClick={() => toggleTierExpanded(modelKey)}
+                                aria-expanded={isExpanded}
+                              >
+                                {isExpanded
+                                  ? t('common.collapse')
+                                  : `${display.tiers.length} ${t('usage.pricing.pricing_tiers')}`}
+                              </button>
+                            )}
+                          </div>
+                          {model.expression && (
+                            <code className={styles.expression} title={model.expression}>
+                              {model.expression}
+                            </code>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell alignRight className={styles.mono}>
+                        {formatPrice(display.input, i18n.language)}
+                      </TableCell>
+                      <TableCell alignRight className={styles.mono}>
+                        {formatPrice(display.output, i18n.language)}
+                      </TableCell>
+                      <TableCell alignRight className={styles.mono}>
+                        {formatPrice(display.cacheRead, i18n.language)}
+                      </TableCell>
+                      <TableCell alignRight className={styles.mono}>
+                        {formatPrice(display.cacheWrite, i18n.language)}
+                      </TableCell>
+                      <TableCell alignRight>
+                        <div className={styles.rowActions}>
+                          <button
+                            type="button"
+                            className={styles.iconBtn}
+                            onClick={() => openEditor(model)}
+                            aria-label={t('common.edit')}
+                            title={t('common.edit')}
+                          >
+                            <IconPencil size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                            onClick={() => setDeleting(model)}
+                            aria-label={t('common.delete')}
+                            title={t('common.delete')}
+                          >
+                            <IconTrash2 size={15} />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+
+                    {isExpanded &&
+                      display.tiers.map((tier) => (
+                        <TableRow
+                          key={`${modelKey}/tier/${tier.name}`}
+                          className={styles.subTierRow}
+                        >
+                          <TableCell className={styles.subTierIndentCell}>
+                            <span className={styles.tierSubMarker}>└</span>
+                          </TableCell>
+                          <TableCell>
+                            <div className={styles.subTierIdentity}>
+                              <span className={styles.tierBadge}>{tier.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell alignRight className={`${styles.mono} ${styles.subTierValue}`}>
+                            {formatPrice(tier.input, i18n.language)}
+                          </TableCell>
+                          <TableCell alignRight className={`${styles.mono} ${styles.subTierValue}`}>
+                            {formatPrice(tier.output, i18n.language)}
+                          </TableCell>
+                          <TableCell alignRight className={`${styles.mono} ${styles.subTierValue}`}>
+                            {formatPrice(tier.cacheRead, i18n.language)}
+                          </TableCell>
+                          <TableCell alignRight className={`${styles.mono} ${styles.subTierValue}`}>
+                            {formatPrice(tier.cacheWrite, i18n.language)}
+                          </TableCell>
+                          <TableCell alignRight />
+                        </TableRow>
+                      ))}
+                  </Fragment>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </section>
       ) : null}
 
       <Modal
