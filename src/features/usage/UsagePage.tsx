@@ -22,7 +22,9 @@ import {
   IconPencil,
   IconPlus,
   IconRefreshCw,
+  IconScrollText,
   IconSearch,
+  IconSlidersHorizontal,
   IconTrash2,
   IconX,
 } from '@/components/ui/icons';
@@ -479,7 +481,7 @@ export function UsageSummaryPage() {
                     <TableHead alignRight>{t('usage.metrics.tokens')}</TableHead>
                     <TableHead alignRight>{t('usage.metrics.cost')}</TableHead>
                     <TableHead alignRight>{t('usage.metrics.latency')}</TableHead>
-                    <TableHead alignRight>{t('usage.columns.actions')}</TableHead>
+                    <TableHead alignRight className={styles.keyActionsCol}>{t('usage.columns.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -524,7 +526,7 @@ export function UsageSummaryPage() {
                         <TableCell alignRight className={styles.mono}>
                           {avgLatency !== null ? `${formatNumber(avgLatency, i18n.language)} ms` : '—'}
                         </TableCell>
-                        <TableCell alignRight>
+                        <TableCell alignRight className={styles.keyActionsCol}>
                           <div className={styles.keyActions}>
                             <button
                               type="button"
@@ -532,14 +534,16 @@ export function UsageSummaryPage() {
                               onClick={() => setSelectedKey(keyItem.api_key_fingerprint)}
                               title={t('usage.summary.filter_by_key')}
                             >
-                              {t('usage.summary.filter_by_key')}
+                              <IconSlidersHorizontal size={12} aria-hidden="true" />
+                              <span>{t('usage.summary.filter_by_key')}</span>
                             </button>
                             <NavLink
                               to={`/usage/events?api_key_fingerprint=${encodeURIComponent(keyItem.api_key_fingerprint)}`}
                               className={styles.keyActionLink}
                               title={t('usage.summary.view_key_events')}
                             >
-                              {t('usage.summary.view_key_events')}
+                              <IconScrollText size={12} aria-hidden="true" />
+                              <span>{t('usage.summary.view_key_events')}</span>
                             </NavLink>
                           </div>
                         </TableCell>
@@ -1148,7 +1152,7 @@ export function UsagePricingPage() {
                 <TableHead alignRight>{t('usage.pricing.output')}</TableHead>
                 <TableHead alignRight>{t('usage.pricing.cache_read')}</TableHead>
                 <TableHead alignRight>{t('usage.pricing.cache_write')}</TableHead>
-                <TableHead alignRight>{t('usage.columns.actions')}</TableHead>
+                <TableHead alignRight className={styles.pricingActionsCol}>{t('usage.columns.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1210,7 +1214,7 @@ export function UsagePricingPage() {
                       <TableCell alignRight className={styles.mono}>
                         {formatPrice(display.cacheWrite, i18n.language)}
                       </TableCell>
-                      <TableCell alignRight>
+                      <TableCell alignRight className={styles.pricingActionsCol}>
                         <div className={styles.rowActions}>
                           <button
                             type="button"

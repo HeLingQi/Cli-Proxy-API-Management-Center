@@ -378,6 +378,8 @@
   color: var(--bg-secondary);
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
   transition:
     transform var(--dur-press, 160ms) var(--ease-out-strong, ease-out),
@@ -630,6 +632,7 @@
 .mono {
   font-family: $font-mono;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .nowrap {
@@ -848,11 +851,21 @@
   padding-top: 4px;
 }
 
+.pricingActionsCol {
+  width: 84px;
+  min-width: 84px;
+  white-space: nowrap;
+  text-align: right;
+  vertical-align: middle;
+}
+
 .rowActions {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .iconBtn {
@@ -963,6 +976,8 @@
   font-family: $font-mono;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
   outline: none;
   cursor: pointer;
   transition: border-color $transition-fast;
@@ -1025,42 +1040,78 @@
   white-space: nowrap;
 }
 
+.keyActionsCol {
+  width: 176px;
+  min-width: 176px;
+  white-space: nowrap;
+  text-align: right;
+  vertical-align: middle;
+}
+
 .keyActions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-end;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.keyActionBtn,
+.keyActionLink {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color $transition-fast,
+    border-color $transition-fast,
+    color $transition-fast,
+    box-shadow $transition-fast;
+  user-select: none;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+  }
 }
 
 .keyActionBtn {
-  @include button-reset;
-  font-size: 12px;
-  font-weight: 500;
   color: var(--primary-color);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: transparent;
-  transition: background-color $transition-fast;
+  border-color: color-mix(in srgb, var(--primary-color) 28%, var(--border-color));
 
   &:hover {
-    background: var(--muted-bg);
-    text-decoration: underline;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 8%, var(--bg-primary));
   }
 }
 
 .keyActionLink {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  text-decoration: none;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background-color $transition-fast, color $transition-fast;
-
   &:hover {
     color: var(--text-primary);
-    background: var(--muted-bg);
+    background: var(--bg-tertiary);
   }
 }
 
