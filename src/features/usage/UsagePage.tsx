@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table/Table';
-import { IconPencil, IconPlus, IconTrash2 } from '@/components/ui/icons';
+import { IconPencil, IconPlus, IconRefreshCw, IconTrash2 } from '@/components/ui/icons';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import {
   usageHistoryApi,
@@ -367,6 +367,7 @@ export function UsagePricingPage() {
   const [catalog, setCatalog] = useState<PricingCatalog | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState('');
   const [draft, setDraft] = useState<PricingDraft | null>(null);
   const [editing, setEditing] = useState(false);
@@ -389,6 +390,27 @@ export function UsagePricingPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const sync = async () => {
+    if (!catalog) return;
+    setSyncing(true);
+    try {
+      const next = await usageHistoryApi.syncPricingModels(catalog.revision);
+      setCatalog(next);
+      showNotification(
+        t('usage.pricing.sync_success', {
+          matched: next.sync.matched,
+          unmatched: next.sync.unmatched.length,
+        }),
+        'success'
+      );
+    } catch (syncError) {
+      showNotification(getErrorMessage(syncError, t('usage.pricing.sync_error')), 'error');
+      await load();
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const openEditor = (model?: PricingModel) => {
     setEditing(Boolean(model));
@@ -455,12 +477,25 @@ export function UsagePricingPage() {
           <h2>{t('usage.pricing.title')}</h2>
           <p>{t('usage.pricing.description')}</p>
         </div>
-        <Button onClick={() => openEditor()} disabled={!connected || !catalog}>
-          <span className={styles.buttonLabel}>
-            <IconPlus size={16} />
-            {t('usage.pricing.add')}
-          </span>
-        </Button>
+        <div className={styles.pricingActions}>
+          <Button
+            variant="secondary"
+            loading={syncing}
+            onClick={() => void sync()}
+            disabled={!connected || !catalog || saving}
+          >
+            <span className={styles.buttonLabel}>
+              <IconRefreshCw size={16} />
+              {t('usage.pricing.sync')}
+            </span>
+          </Button>
+          <Button onClick={() => openEditor()} disabled={!connected || !catalog || syncing}>
+            <span className={styles.buttonLabel}>
+              <IconPlus size={16} />
+              {t('usage.pricing.add')}
+            </span>
+          </Button>
+        </div>
       </div>
       {error && <div className="error-box">{error}</div>}
       {loading && !catalog ? (
@@ -494,18 +529,31 @@ export function UsagePricingPage() {
             {catalog.models.map((model) => (
               <TableRow key={`${model.provider}/${model.model}`}>
                 <TableCell>{model.provider}</TableCell>
-                <TableCell className={styles.mono}>{model.model}</TableCell>
-                <TableCell alignRight>
-                  {formatPrice(model.base_prices.input, i18n.language)}
+                <TableCell>
+                  <div className={styles.stack}>
+                    <span className={styles.mono}>{model.model}</span>
+                    {model.expression && (
+                      <code className={styles.expression} title={model.expression}>
+                        {model.expression}
+                      </code>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell alignRight>
-                  {formatPrice(model.base_prices.output, i18n.language)}
+                  {model.expression ? '—' : formatPrice(model.base_prices.input, i18n.language)}
                 </TableCell>
                 <TableCell alignRight>
-                  {formatPrice(model.base_prices.cache_read, i18n.language)}
+                  {model.expression ? '—' : formatPrice(model.base_prices.output, i18n.language)}
                 </TableCell>
                 <TableCell alignRight>
-                  {formatPrice(model.base_prices.cache_write, i18n.language)}
+                  {model.expression
+                    ? '—'
+                    : formatPrice(model.base_prices.cache_read, i18n.language)}
+                </TableCell>
+                <TableCell alignRight>
+                  {model.expression
+                    ? t('usage.pricing.dynamic')
+                    : formatPrice(model.base_prices.cache_write, i18n.language)}
                 </TableCell>
                 <TableCell alignRight>
                   <div className={styles.rowActions}>

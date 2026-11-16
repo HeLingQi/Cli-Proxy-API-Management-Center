@@ -138,7 +138,11 @@
     "title": "Kullanım ve fiyatlandırma",
     "description": "Kalıcı istek kullanımını ve gizlenmiş olayları inceleyin, model fiyatlarını yönetin.",
     "tabs_label": "Kullanım görünümleri",
-    "tabs": { "summary": "Özet", "events": "Olaylar", "pricing": "Fiyatlar" },
+    "tabs": {
+      "summary": "Özet",
+      "events": "Olaylar",
+      "pricing": "Fiyatlar"
+    },
     "load_error": "Kullanım verileri yüklenemedi",
     "metrics": {
       "requests": "İstekler",
@@ -198,7 +202,11 @@
       "deleted": "Model fiyatı silindi",
       "delete_error": "Model fiyatı silinemedi",
       "delete_title": "Model fiyatı silinsin mi?",
-      "delete_confirm": "{{provider}} / {{model}} fiyatı silinsin mi? Mevcut kullanım geçmişi yeniden hesaplanmaz."
+      "delete_confirm": "{{provider}} / {{model}} fiyatı silinsin mi? Mevcut kullanım geçmişi yeniden hesaplanmaz.",
+      "sync": "Senkronize et",
+      "dynamic": "Dinamik",
+      "sync_success": "{{matched}} model eşitlendi · {{unmatched}} eşleşmedi",
+      "sync_error": "Model fiyatları eşitlenemedi"
     }
   },
   "dashboard": {

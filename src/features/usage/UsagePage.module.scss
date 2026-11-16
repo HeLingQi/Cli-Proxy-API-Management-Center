@@ -263,6 +263,18 @@
   color: var(--danger-color);
 }
 
+.expression {
+  display: block;
+  max-width: 360px;
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-family: $font-mono;
+  font-size: 10px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .requestId {
   max-width: 180px;
   overflow: hidden;
@@ -275,6 +287,12 @@
   display: flex;
   justify-content: center;
   padding-top: 4px;
+}
+
+.pricingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .buttonLabel {

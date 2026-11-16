@@ -138,7 +138,11 @@
     "title": "用量與定價",
     "description": "查看持久化請求用量、稽核脫敏事件並管理模型價格。",
     "tabs_label": "用量檢視",
-    "tabs": { "summary": "彙總", "events": "事件", "pricing": "定價" },
+    "tabs": {
+      "summary": "彙總",
+      "events": "事件",
+      "pricing": "定價"
+    },
     "load_error": "載入用量資料失敗",
     "metrics": {
       "requests": "請求數",
@@ -198,7 +202,11 @@
       "deleted": "模型價格已刪除",
       "delete_error": "刪除模型價格失敗",
       "delete_title": "刪除模型價格？",
-      "delete_confirm": "確定刪除 {{provider}} / {{model}} 的價格嗎？已有用量歷史不會重新計算。"
+      "delete_confirm": "確定刪除 {{provider}} / {{model}} 的價格嗎？已有用量歷史不會重新計算。",
+      "sync": "同步",
+      "dynamic": "動態計價",
+      "sync_success": "已同步 {{matched}} 個模型 · {{unmatched}} 個未匹配",
+      "sync_error": "同步模型價格失敗"
     }
   },
   "dashboard": {
@@ -623,7 +631,6 @@
     "reset_confirm_button": "確認重置",
     "reset_not_confirmed": "尚未確認額度重置成功，請重新整理額度後再決定是否重試。",
     "reset_cooldown_failed": "額度已重置，但代理冷卻清除失敗。請在原連線的認證檔案頁面使用「清除冷卻」，不要再次消耗重置卡。",
-
     "reset_success": "已重置「{{name}}」的 Codex 配額",
     "reset_failed": "重置「{{name}}」的 Codex 配額失敗：{{message}}",
     "plan_plus": "Plus",

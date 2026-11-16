@@ -138,7 +138,11 @@
     "title": "Mức dùng & giá",
     "description": "Xem mức dùng đã lưu, kiểm tra sự kiện đã ẩn dữ liệu nhạy cảm và quản lý giá model.",
     "tabs_label": "Chế độ xem mức dùng",
-    "tabs": { "summary": "Tổng quan", "events": "Sự kiện", "pricing": "Bảng giá" },
+    "tabs": {
+      "summary": "Tổng quan",
+      "events": "Sự kiện",
+      "pricing": "Bảng giá"
+    },
     "load_error": "Không thể tải dữ liệu mức dùng",
     "metrics": {
       "requests": "Yêu cầu",
@@ -198,7 +202,11 @@
       "deleted": "Đã xóa giá model",
       "delete_error": "Không thể xóa giá model",
       "delete_title": "Xóa giá model?",
-      "delete_confirm": "Xóa giá của {{provider}} / {{model}}? Lịch sử mức dùng sẽ không được tính lại."
+      "delete_confirm": "Xóa giá của {{provider}} / {{model}}? Lịch sử mức dùng sẽ không được tính lại.",
+      "sync": "Đồng bộ",
+      "dynamic": "Giá động",
+      "sync_success": "Đã đồng bộ {{matched}} model · {{unmatched}} không khớp",
+      "sync_error": "Không thể đồng bộ giá model"
     }
   },
   "dashboard": {

@@ -138,7 +138,11 @@
     "title": "사용량 및 요금",
     "description": "저장된 요청 사용량과 민감 정보가 제거된 이벤트를 확인하고 모델 요금을 관리합니다.",
     "tabs_label": "사용량 보기",
-    "tabs": { "summary": "요약", "events": "이벤트", "pricing": "요금" },
+    "tabs": {
+      "summary": "요약",
+      "events": "이벤트",
+      "pricing": "요금"
+    },
     "load_error": "사용량 데이터를 불러오지 못했습니다",
     "metrics": {
       "requests": "요청",
@@ -198,7 +202,11 @@
       "deleted": "모델 요금이 삭제되었습니다",
       "delete_error": "모델 요금을 삭제하지 못했습니다",
       "delete_title": "모델 요금을 삭제할까요?",
-      "delete_confirm": "{{provider}} / {{model}} 요금을 삭제할까요? 기존 사용량 기록은 다시 계산되지 않습니다."
+      "delete_confirm": "{{provider}} / {{model}} 요금을 삭제할까요? 기존 사용량 기록은 다시 계산되지 않습니다.",
+      "sync": "동기화",
+      "dynamic": "동적 요금",
+      "sync_success": "{{matched}}개 모델 동기화 · {{unmatched}}개 불일치",
+      "sync_error": "모델 요금을 동기화하지 못했습니다"
     }
   },
   "dashboard": {

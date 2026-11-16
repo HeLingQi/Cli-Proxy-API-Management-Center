@@ -202,7 +202,11 @@
       "deleted": "Model price deleted",
       "delete_error": "Failed to delete model price",
       "delete_title": "Delete model price?",
-      "delete_confirm": "Delete pricing for {{provider}} / {{model}}? Existing usage history will not be recalculated."
+      "delete_confirm": "Delete pricing for {{provider}} / {{model}}? Existing usage history will not be recalculated.",
+      "sync": "Sync",
+      "dynamic": "Dynamic",
+      "sync_success": "Synchronized {{matched}} models · {{unmatched}} unmatched",
+      "sync_error": "Failed to synchronize model pricing"
     }
   },
   "dashboard": {

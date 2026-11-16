@@ -72,6 +72,8 @@ export interface UsageEventsPage {
 export interface PricingModel {
   provider: string;
   model: string;
+  expression?: string;
+  source?: string;
   base_prices: {
     input: number;
     output: number;
@@ -85,6 +87,16 @@ export interface PricingCatalog {
   models: PricingModel[];
 }
 
+export interface PricingSyncResponse extends PricingCatalog {
+  sync: {
+    source: string;
+    configured_models: number;
+    matched: number;
+    updated: number;
+    unmatched: Array<{ provider: string; model: string }>;
+  };
+}
+
 export const usageHistoryApi = {
   getSummary: (from: string, to: string) =>
     apiClient.get<UsageSummary>('/observability/usage/summary', { params: { from, to } }),
@@ -93,6 +105,8 @@ export const usageHistoryApi = {
       params: { limit, ...(before ? { before } : {}) },
     }),
   getPricingModels: () => apiClient.get<PricingCatalog>('/observability/pricing/models'),
+  syncPricingModels: (revision: number) =>
+    apiClient.post<PricingSyncResponse>('/observability/pricing/models/sync', { revision }),
   putPricingModel: (revision: number, model: PricingModel) =>
     apiClient.put<PricingCatalog>('/observability/pricing/models', { revision, ...model }),
   deletePricingModel: (revision: number, provider: string, model: string) =>
