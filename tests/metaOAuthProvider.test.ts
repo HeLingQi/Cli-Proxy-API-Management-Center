@@ -78,9 +78,8 @@ describe('Muse (Meta) provider and device OAuth', () => {
 
   test('registers device-code UI but not a manual OAuth callback', () => {
     const meta = OAUTH_PROVIDERS.find((provider) => provider.id === 'meta');
-    expect(meta).toMatchObject({ flow: 'device', label: 'Muse (Meta)' });
+    expect(meta).toBeUndefined();
     expect(CALLBACK_SUPPORTED.has('meta')).toBe(false);
-    expect(meta && supportsManualCallback(meta)).toBe(false);
     expect(readFileSync('src/features/oauth/hooks/useOAuthFlows.ts', 'utf8')).toContain(
       'userCode: res.user_code'
     );
