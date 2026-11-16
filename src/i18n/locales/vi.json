@@ -153,6 +153,7 @@
     "columns": {
       "date": "Ngày",
       "time": "Thời gian",
+      "api_key": "API Key / SK",
       "success": "Thành công",
       "failed": "Thất bại",
       "status": "Trạng thái",
@@ -160,7 +161,9 @@
       "request_id": "ID yêu cầu",
       "provider": "Provider",
       "model": "Model",
-      "actions": "Thao tác"
+      "actions": "Thao tác",
+      "input_tokens": "Token đầu vào",
+      "output_tokens": "Token đầu ra"
     },
     "summary": {
       "from": "Từ ngày",
@@ -173,6 +176,13 @@
       "cost_hint": "Ưu tiên chi phí upstream, nếu không sẽ ước tính theo bảng giá",
       "ttft_hint": "TTFT trung bình: {{value}} ms",
       "daily_title": "Mức dùng hằng ngày",
+      "api_keys_title": "Mức dùng theo API Key / SK",
+      "all_keys": "Tất cả khóa",
+      "filter_by_key": "Lọc xu hướng",
+      "view_key_events": "Xem sự kiện",
+      "filtering_key": "Đang lọc theo API Key",
+      "clear_key_filter": "Xem tất cả",
+      "no_api_keys": "Không có dữ liệu sử dụng API Key trong khoảng thời gian này",
       "utc_note": "Ngày lịch dùng múi giờ UTC"
     },
     "events": {

@@ -153,6 +153,7 @@
     "columns": {
       "date": "Date",
       "time": "Time",
+      "api_key": "API Key / SK",
       "success": "Success",
       "failed": "Failed",
       "status": "Status",
@@ -160,7 +161,9 @@
       "request_id": "Request ID",
       "provider": "Provider",
       "model": "Model",
-      "actions": "Actions"
+      "actions": "Actions",
+      "input_tokens": "Input Tokens",
+      "output_tokens": "Output Tokens"
     },
     "summary": {
       "from": "From",
@@ -173,6 +176,13 @@
       "cost_hint": "Upstream reported cost when available, otherwise catalog estimate",
       "ttft_hint": "Average TTFT: {{value}} ms",
       "daily_title": "Daily usage",
+      "api_keys_title": "API Key / SK Breakdown",
+      "all_keys": "All Keys",
+      "filter_by_key": "Filter Trend",
+      "view_key_events": "View Events",
+      "filtering_key": "Filtering by API Key",
+      "clear_key_filter": "View All",
+      "no_api_keys": "No API key usage recorded for this period",
       "utc_note": "Calendar days use UTC"
     },
     "events": {

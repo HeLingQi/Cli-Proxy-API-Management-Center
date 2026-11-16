@@ -153,6 +153,7 @@
     "columns": {
       "date": "日期",
       "time": "时间",
+      "api_key": "API 密钥 / SK",
       "success": "成功",
       "failed": "失败",
       "status": "状态",
@@ -160,7 +161,9 @@
       "request_id": "请求 ID",
       "provider": "提供商",
       "model": "模型",
-      "actions": "操作"
+      "actions": "操作",
+      "input_tokens": "输入 Token",
+      "output_tokens": "输出 Token"
     },
     "summary": {
       "from": "开始日期",
@@ -173,6 +176,13 @@
       "cost_hint": "优先使用上游报告成本，否则使用价格目录估算",
       "ttft_hint": "平均首字延迟：{{value}} ms",
       "daily_title": "每日用量",
+      "api_keys_title": "API 密钥 / SK 用量明细",
+      "all_keys": "全部密钥",
+      "filter_by_key": "筛选趋势",
+      "view_key_events": "查看事件",
+      "filtering_key": "当前按 API 密钥筛选",
+      "clear_key_filter": "查看全部",
+      "no_api_keys": "当前时间段暂无 API 密钥用量记录",
       "utc_note": "自然日按 UTC 计算"
     },
     "events": {

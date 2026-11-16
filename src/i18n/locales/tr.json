@@ -153,6 +153,7 @@
     "columns": {
       "date": "Tarih",
       "time": "Saat",
+      "api_key": "API Anahtarı / SK",
       "success": "Başarılı",
       "failed": "Başarısız",
       "status": "Durum",
@@ -160,7 +161,9 @@
       "request_id": "İstek kimliği",
       "provider": "Sağlayıcı",
       "model": "Model",
-      "actions": "İşlemler"
+      "actions": "İşlemler",
+      "input_tokens": "Giriş Tokenları",
+      "output_tokens": "Çıkış Tokenları"
     },
     "summary": {
       "from": "Başlangıç",
@@ -173,6 +176,13 @@
       "cost_hint": "Varsa yukarı akış maliyeti, yoksa katalog tahmini",
       "ttft_hint": "Ortalama TTFT: {{value}} ms",
       "daily_title": "Günlük kullanım",
+      "api_keys_title": "API Anahtarı / SK Kullanımı",
+      "all_keys": "Tüm Anahtarlar",
+      "filter_by_key": "Trendi Filtrele",
+      "view_key_events": "Olayları Görüntüle",
+      "filtering_key": "API Anahtarına Göre Filtreleniyor",
+      "clear_key_filter": "Tümünü Göster",
+      "no_api_keys": "Bu dönem için kayıtlı API anahtarı kullanımı yok",
       "utc_note": "Takvim günleri UTC kullanır"
     },
     "events": {

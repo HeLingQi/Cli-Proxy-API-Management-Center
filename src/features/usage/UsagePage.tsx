@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -18,6 +18,7 @@ import {
 import {
   IconCheckCircle2,
   IconAlertTriangle,
+  IconKey,
   IconPencil,
   IconPlus,
   IconRefreshCw,
@@ -168,6 +169,8 @@ export function UsageSummaryPage() {
   const [from, setFrom] = useState(todayUTC);
   const [to, setTo] = useState(todayUTC);
   const [range, setRange] = useState(() => ({ from: todayUTC(), to: todayUTC() }));
+  const [selectedKey, setSelectedKey] = useState<string>('');
+  const [knownKeys, setKnownKeys] = useState<Array<{ fp: string; masked: string }>>([]);
   const [summary, setSummary] = useState<UsageSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -177,13 +180,23 @@ export function UsageSummaryPage() {
     setLoading(true);
     setError('');
     try {
-      setSummary(await usageHistoryApi.getSummary(range.from, range.to));
+      const data = await usageHistoryApi.getSummary(range.from, range.to, selectedKey || undefined);
+      setSummary(data);
+      if (data.api_keys && data.api_keys.length > 0) {
+        setKnownKeys((prev) => {
+          const map = new Map(prev.map((k) => [k.fp, k.masked]));
+          for (const item of data.api_keys ?? []) {
+            map.set(item.api_key_fingerprint, item.api_key_masked || item.api_key_fingerprint);
+          }
+          return Array.from(map.entries()).map(([fp, masked]) => ({ fp, masked }));
+        });
+      }
     } catch (loadError) {
       setError(getErrorMessage(loadError, t('usage.load_error')));
     } finally {
       setLoading(false);
     }
-  }, [connected, range.from, range.to, t]);
+  }, [connected, range.from, range.to, selectedKey, t]);
 
   useHeaderRefresh(load, connected);
   useEffect(() => {
@@ -228,6 +241,14 @@ export function UsageSummaryPage() {
         tone: 'default',
       },
     ];
+    if (selectedKey) {
+      const activeItem = knownKeys.find((k) => k.fp === selectedKey);
+      items.push({
+        key: 'filter_key',
+        text: `${t('usage.summary.filtering_key')}: ${activeItem?.masked || selectedKey.slice(0, 16)}`,
+        tone: 'ok',
+      });
+    }
     if (totals) {
       items.push({
         key: 'requests',
@@ -248,7 +269,7 @@ export function UsageSummaryPage() {
       tone: 'muted',
     });
     return items;
-  }, [i18n.language, range.from, range.to, t, totals]);
+  }, [i18n.language, knownKeys, range.from, range.to, selectedKey, t, totals]);
 
   const metrics = totals
     ? [
@@ -320,6 +341,21 @@ export function UsageSummaryPage() {
         else setRange({ from, to });
       }}
     >
+      {knownKeys.length > 0 && (
+        <select
+          className={styles.keySelect}
+          value={selectedKey}
+          onChange={(event) => setSelectedKey(event.target.value)}
+          aria-label={t('usage.columns.api_key')}
+        >
+          <option value="">{t('usage.summary.all_keys')}</option>
+          {knownKeys.map((k) => (
+            <option key={k.fp} value={k.fp}>
+              {k.masked}
+            </option>
+          ))}
+        </select>
+      )}
       <div className={styles.presetGroup} role="group">
         {([1, 7, 30] as const).map((days) => (
           <button
@@ -381,6 +417,25 @@ export function UsageSummaryPage() {
         </>
       ) : summary ? (
         <>
+          {selectedKey ? (
+            <div className={styles.activeKeyFilterBanner}>
+              <div className={styles.activeKeyFilterInfo}>
+                <IconKey size={14} className={styles.activeKeyFilterIcon} />
+                <span>{t('usage.summary.filtering_key')}:</span>
+                <strong className={styles.mono}>
+                  {knownKeys.find((k) => k.fp === selectedKey)?.masked || selectedKey}
+                </strong>
+              </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setSelectedKey('')}
+              >
+                {t('usage.summary.clear_key_filter')}
+              </Button>
+            </div>
+          ) : null}
+
           <section className={styles.statsRow} aria-label={t('usage.summary.metrics_label')}>
             {metrics.map((metric) => (
               <article
@@ -402,6 +457,99 @@ export function UsageSummaryPage() {
               </article>
             ))}
           </section>
+
+          {!selectedKey && summary.api_keys && summary.api_keys.length > 0 ? (
+            <section className={styles.panel}>
+              <header className={styles.panelHead}>
+                <div className={styles.panelHeadCopy}>
+                  <span className={styles.eyebrow}>{t('usage.summary.utc_note')}</span>
+                  <h2 className={styles.panelTitle}>{t('usage.summary.api_keys_title')}</h2>
+                </div>
+              </header>
+
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('usage.columns.api_key')}</TableHead>
+                    <TableHead alignRight>{t('usage.metrics.requests')}</TableHead>
+                    <TableHead alignRight>{t('usage.columns.success')}</TableHead>
+                    <TableHead alignRight>{t('usage.columns.failed')}</TableHead>
+                    <TableHead alignRight>{t('usage.columns.input_tokens')}</TableHead>
+                    <TableHead alignRight>{t('usage.columns.output_tokens')}</TableHead>
+                    <TableHead alignRight>{t('usage.metrics.tokens')}</TableHead>
+                    <TableHead alignRight>{t('usage.metrics.cost')}</TableHead>
+                    <TableHead alignRight>{t('usage.metrics.latency')}</TableHead>
+                    <TableHead alignRight>{t('usage.columns.actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {summary.api_keys.map((keyItem) => {
+                    const reqCount = keyItem.requests;
+                    const avgLatency =
+                      reqCount > 0 ? Math.round(keyItem.latency_total_ms / reqCount) : null;
+                    return (
+                      <TableRow key={keyItem.api_key_fingerprint}>
+                        <TableCell>
+                          <div className={styles.keyIdentityCell}>
+                            <IconKey size={14} className={styles.keyCellIcon} />
+                            <span className={styles.keyChip} title={keyItem.api_key_fingerprint}>
+                              {keyItem.api_key_masked || keyItem.api_key_fingerprint.slice(0, 16)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell alignRight className={styles.mono}>
+                          {formatNumber(keyItem.requests, i18n.language)}
+                        </TableCell>
+                        <TableCell alignRight className={`${styles.mono} ${styles.textSuccess}`}>
+                          {formatNumber(keyItem.success, i18n.language)}
+                        </TableCell>
+                        <TableCell
+                          alignRight
+                          className={`${styles.mono} ${keyItem.failed > 0 ? styles.textDanger : styles.textMuted}`}
+                        >
+                          {formatNumber(keyItem.failed, i18n.language)}
+                        </TableCell>
+                        <TableCell alignRight className={styles.mono}>
+                          {formatNumber(keyItem.input_tokens, i18n.language)}
+                        </TableCell>
+                        <TableCell alignRight className={styles.mono}>
+                          {formatNumber(keyItem.output_tokens, i18n.language)}
+                        </TableCell>
+                        <TableCell alignRight className={styles.mono}>
+                          {formatNumber(keyItem.total_tokens, i18n.language)}
+                        </TableCell>
+                        <TableCell alignRight className={styles.mono}>
+                          {formatUSD(keyItem.effective_cost_usd_micros, i18n.language)}
+                        </TableCell>
+                        <TableCell alignRight className={styles.mono}>
+                          {avgLatency !== null ? `${formatNumber(avgLatency, i18n.language)} ms` : '—'}
+                        </TableCell>
+                        <TableCell alignRight>
+                          <div className={styles.keyActions}>
+                            <button
+                              type="button"
+                              className={styles.keyActionBtn}
+                              onClick={() => setSelectedKey(keyItem.api_key_fingerprint)}
+                              title={t('usage.summary.filter_by_key')}
+                            >
+                              {t('usage.summary.filter_by_key')}
+                            </button>
+                            <NavLink
+                              to={`/usage/events?api_key_fingerprint=${encodeURIComponent(keyItem.api_key_fingerprint)}`}
+                              className={styles.keyActionLink}
+                              title={t('usage.summary.view_key_events')}
+                            >
+                              {t('usage.summary.view_key_events')}
+                            </NavLink>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </section>
+          ) : null}
 
           <section className={styles.panel}>
             <header className={styles.panelHead}>
@@ -465,6 +613,8 @@ export function UsageSummaryPage() {
 export function UsageEventsPage() {
   const { t, i18n } = useTranslation();
   const connected = useAuthStore((state) => state.connectionStatus === 'connected');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const apiKeyFilter = searchParams.get('api_key_fingerprint') || '';
   const [items, setItems] = useState<UsageEvent[]>([]);
   const [nextBefore, setNextBefore] = useState<number>();
   const [loading, setLoading] = useState(false);
@@ -473,6 +623,18 @@ export function UsageEventsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<EventStatusFilter>('all');
 
+  const setApiKeyFilter = useCallback(
+    (fp: string) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (fp) next.set('api_key_fingerprint', fp);
+        else next.delete('api_key_fingerprint');
+        return next;
+      });
+    },
+    [setSearchParams]
+  );
+
   const load = useCallback(
     async (before?: number) => {
       if (!connected) return;
@@ -480,7 +642,7 @@ export function UsageEventsPage() {
       else setLoading(true);
       setError('');
       try {
-        const page = await usageHistoryApi.getEvents(before);
+        const page = await usageHistoryApi.getEvents(before, 50, apiKeyFilter || undefined);
         setItems((current) => (before ? [...current, ...page.items] : page.items));
         setNextBefore(page.next_before);
       } catch (loadError) {
@@ -490,7 +652,7 @@ export function UsageEventsPage() {
         setLoadingMore(false);
       }
     },
-    [connected, t]
+    [connected, apiKeyFilter, t]
   );
 
   const refresh = useCallback(() => load(), [load]);
@@ -509,7 +671,9 @@ export function UsageEventsPage() {
         item.provider?.toLowerCase().includes(query) ||
         item.model?.toLowerCase().includes(query) ||
         item.request_id?.toLowerCase().includes(query) ||
-        item.trace_id?.toLowerCase().includes(query)
+        item.trace_id?.toLowerCase().includes(query) ||
+        item.api_key_masked?.toLowerCase().includes(query) ||
+        item.api_key_fingerprint?.toLowerCase().includes(query)
       );
     });
   }, [items, search, statusFilter]);
@@ -523,6 +687,13 @@ export function UsageEventsPage() {
         tone: items.length > 0 ? 'ok' : 'muted',
       },
     ];
+    if (apiKeyFilter) {
+      segments.push({
+        key: 'filter_key',
+        text: `${t('usage.summary.filtering_key')}: ${apiKeyFilter.slice(0, 16)}`,
+        tone: 'ok',
+      });
+    }
     if (failedCount > 0) {
       segments.push({
         key: 'failed',
@@ -536,7 +707,7 @@ export function UsageEventsPage() {
       tone: 'muted',
     });
     return segments;
-  }, [i18n.language, items, t]);
+  }, [apiKeyFilter, i18n.language, items, t]);
 
   const eventsToolbar = (
     <div className={styles.filterRow}>
@@ -560,6 +731,21 @@ export function UsageEventsPage() {
         ))}
       </div>
 
+      {apiKeyFilter && (
+        <div className={styles.activeFilterChip}>
+          <IconKey size={13} aria-hidden="true" />
+          <span>{apiKeyFilter.slice(0, 16)}</span>
+          <button
+            type="button"
+            className={styles.clearFilterChip}
+            onClick={() => setApiKeyFilter('')}
+            aria-label={t('common.close')}
+          >
+            <IconX size={12} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
       <div className={styles.searchBox}>
         <IconSearch size={15} className={styles.searchIcon} aria-hidden="true" />
         <input
@@ -567,7 +753,7 @@ export function UsageEventsPage() {
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder={`${t('usage.columns.provider_model')} / ${t('usage.columns.request_id')}`}
+          placeholder={`${t('usage.columns.provider_model')} / ${t('usage.columns.api_key')} / ${t('usage.columns.request_id')}`}
           aria-label={t('usage.columns.provider_model')}
         />
         {search && (
@@ -598,13 +784,14 @@ export function UsageEventsPage() {
           title={t('usage.events.empty')}
           description={t('usage.events.empty_desc')}
           action={
-            search || statusFilter !== 'all' ? (
+            search || statusFilter !== 'all' || apiKeyFilter ? (
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => {
                   setSearch('');
                   setStatusFilter('all');
+                  setApiKeyFilter('');
                 }}
               >
                 {t('auth_files.filter_all')}
@@ -626,6 +813,7 @@ export function UsageEventsPage() {
               <TableRow>
                 <TableHead>{t('usage.columns.time')}</TableHead>
                 <TableHead>{t('usage.columns.status')}</TableHead>
+                <TableHead>{t('usage.columns.api_key')}</TableHead>
                 <TableHead>{t('usage.columns.provider_model')}</TableHead>
                 <TableHead alignRight>{t('usage.metrics.tokens')}</TableHead>
                 <TableHead alignRight>{t('usage.metrics.latency')}</TableHead>
@@ -653,6 +841,11 @@ export function UsageEventsPage() {
                       )}
                       {item.failed ? t('usage.events.failed') : t('usage.events.success')}
                       {item.failure_status_code ? ` · ${item.failure_status_code}` : ''}
+                    </span>
+                  </TableCell>
+                  <TableCell className={styles.mono}>
+                    <span className={styles.keyChip} title={item.api_key_fingerprint || ''}>
+                      {item.api_key_masked || (item.api_key_fingerprint ? item.api_key_fingerprint.slice(0, 16) : '—')}
                     </span>
                   </TableCell>
                   <TableCell>

@@ -153,6 +153,7 @@
     "columns": {
       "date": "날짜",
       "time": "시간",
+      "api_key": "API 키 / SK",
       "success": "성공",
       "failed": "실패",
       "status": "상태",
@@ -160,7 +161,9 @@
       "request_id": "요청 ID",
       "provider": "공급자",
       "model": "모델",
-      "actions": "작업"
+      "actions": "작업",
+      "input_tokens": "입력 토큰",
+      "output_tokens": "출력 토큰"
     },
     "summary": {
       "from": "시작일",
@@ -173,6 +176,13 @@
       "cost_hint": "업스트림 보고 비용을 우선 사용하고 없으면 요금표로 추정",
       "ttft_hint": "평균 TTFT: {{value}} ms",
       "daily_title": "일별 사용량",
+      "api_keys_title": "API 키 / SK 사용량 상세",
+      "all_keys": "모든 키",
+      "filter_by_key": "추세 필터링",
+      "view_key_events": "이벤트 보기",
+      "filtering_key": "API 키 필터링 중",
+      "clear_key_filter": "모두 보기",
+      "no_api_keys": "이 기간 동안의 API 키 사용량 기록이 없습니다",
       "utc_note": "날짜는 UTC 기준"
     },
     "events": {

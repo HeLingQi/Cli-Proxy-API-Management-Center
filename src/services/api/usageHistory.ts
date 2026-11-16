@@ -21,12 +21,18 @@ export interface UsageDay extends UsageAggregate {
   date: string;
 }
 
+export interface UsageApiKeyAggregate extends UsageAggregate {
+  api_key_fingerprint: string;
+  api_key_masked?: string;
+}
+
 export interface UsageSummary {
   from: string;
   to: string;
   timezone: string;
   totals: UsageAggregate;
   days: UsageDay[];
+  api_keys?: UsageApiKeyAggregate[];
 }
 
 export interface UsageEvent {
@@ -40,6 +46,7 @@ export interface UsageEvent {
   alias?: string;
   access_provider?: string;
   api_key_fingerprint?: string;
+  api_key_masked?: string;
   auth_id?: string;
   auth_index?: string;
   auth_type?: string;
@@ -98,11 +105,17 @@ export interface PricingSyncResponse extends PricingCatalog {
 }
 
 export const usageHistoryApi = {
-  getSummary: (from: string, to: string) =>
-    apiClient.get<UsageSummary>('/observability/usage/summary', { params: { from, to } }),
-  getEvents: (before?: number, limit = 50) =>
+  getSummary: (from: string, to: string, apiKeyFingerprint?: string) =>
+    apiClient.get<UsageSummary>('/observability/usage/summary', {
+      params: { from, to, ...(apiKeyFingerprint ? { api_key_fingerprint: apiKeyFingerprint } : {}) },
+    }),
+  getEvents: (before?: number, limit = 50, apiKeyFingerprint?: string) =>
     apiClient.get<UsageEventsPage>('/observability/usage/events', {
-      params: { limit, ...(before ? { before } : {}) },
+      params: {
+        limit,
+        ...(before ? { before } : {}),
+        ...(apiKeyFingerprint ? { api_key_fingerprint: apiKeyFingerprint } : {}),
+      },
     }),
   getPricingModels: () => apiClient.get<PricingCatalog>('/observability/pricing/models'),
   syncPricingModels: (revision: number) =>

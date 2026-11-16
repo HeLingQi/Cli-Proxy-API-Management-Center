@@ -153,6 +153,7 @@
     "columns": {
       "date": "日期",
       "time": "時間",
+      "api_key": "API 金鑰 / SK",
       "success": "成功",
       "failed": "失敗",
       "status": "狀態",
@@ -160,7 +161,9 @@
       "request_id": "請求 ID",
       "provider": "供應商",
       "model": "模型",
-      "actions": "操作"
+      "actions": "操作",
+      "input_tokens": "輸入 Token",
+      "output_tokens": "輸出 Token"
     },
     "summary": {
       "from": "開始日期",
@@ -173,6 +176,13 @@
       "cost_hint": "優先使用上游回報成本，否則使用價格目錄估算",
       "ttft_hint": "平均首字延遲：{{value}} ms",
       "daily_title": "每日用量",
+      "api_keys_title": "API 金鑰 / SK 用量明細",
+      "all_keys": "全部金鑰",
+      "filter_by_key": "篩選趨勢",
+      "view_key_events": "檢視事件",
+      "filtering_key": "目前按 API 金鑰篩選",
+      "clear_key_filter": "檢視全部",
+      "no_api_keys": "目前時間段暫無 API 金鑰用量記錄",
       "utc_note": "日曆日按 UTC 計算"
     },
     "events": {

@@ -152,6 +152,7 @@
     "columns": {
       "date": "Дата",
       "time": "Время",
+      "api_key": "API Key / SK",
       "success": "Успешно",
       "failed": "Ошибки",
       "status": "Статус",
@@ -159,7 +160,9 @@
       "request_id": "ID запроса",
       "provider": "Поставщик",
       "model": "Модель",
-      "actions": "Действия"
+      "actions": "Действия",
+      "input_tokens": "Входные токены",
+      "output_tokens": "Выходные токены"
     },
     "summary": {
       "from": "С",
@@ -172,6 +175,13 @@
       "cost_hint": "Данные поставщика или оценка по каталогу цен",
       "ttft_hint": "Средний TTFT: {{value}} мс",
       "daily_title": "По дням",
+      "api_keys_title": "Использование по API Key / SK",
+      "all_keys": "Все ключи",
+      "filter_by_key": "Фильтр",
+      "view_key_events": "События",
+      "filtering_key": "Фильтрация по API Key",
+      "clear_key_filter": "Показать все",
+      "no_api_keys": "Нет данных по API Key за этот период",
       "utc_note": "Календарные дни в UTC"
     },
     "events": {
