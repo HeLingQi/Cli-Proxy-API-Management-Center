@@ -51,16 +51,16 @@ describe('quota ui state', () => {
     expect(readQuotaUiState()).toEqual({ tab: 'codex', sortMode: 'soonest' });
   });
 
-  test('retains the Devin tab across visits', () => {
-    writeQuotaUiState({ tab: 'devin', sortMode: 'soonest' });
-    expect(readQuotaUiState()).toEqual({ tab: 'devin', sortMode: 'soonest' });
+  test('retains the Antigravity tab across visits', () => {
+    writeQuotaUiState({ tab: 'antigravity', sortMode: 'soonest' });
+    expect(readQuotaUiState()).toEqual({ tab: 'antigravity', sortMode: 'soonest' });
   });
 
   test('writing one preference preserves the other', () => {
     writeQuotaUiState({ sortMode: 'soonest' });
-    writeQuotaUiState({ tab: 'kimi' });
+    writeQuotaUiState({ tab: 'claude' });
 
-    expect(readQuotaUiState()).toEqual({ tab: 'kimi', sortMode: 'soonest' });
+    expect(readQuotaUiState()).toEqual({ tab: 'claude', sortMode: 'soonest' });
   });
 
   test('rejects values that are not part of the current contract', () => {

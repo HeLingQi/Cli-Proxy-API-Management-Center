@@ -20,9 +20,8 @@ const file = (name: string, provider: string, extra: Partial<AuthFileItem> = {})
 const FILES: AuthFileItem[] = [
   file('codex-a.json', 'codex'),
   file('claude-a.json', 'claude'),
-  file('kimi-a.json', 'kimi'),
+  file('antigravity-a.json', 'antigravity'),
   file('codex-b.json', 'codex'),
-  file('grok-a.json', 'grok'), // 别名归一到 xai
   file('gemini-a.json', 'gemini'), // 不支持额度
   file('claude-off.json', 'claude', { disabled: true }), // 停用
 ];
@@ -40,7 +39,7 @@ describe('refresh-all list handoff', () => {
 
 describe('resolveQuotaProviderType', () => {
   test('maps provider aliases and rejects unsupported or disabled files', () => {
-    expect(resolveQuotaProviderType(file('a', 'grok'))).toBe('xai');
+    expect(resolveQuotaProviderType(file('a', 'grok'))).toBeNull();
     expect(resolveQuotaProviderType(file('a', 'antigravity'))).toBe('antigravity');
     expect(resolveQuotaProviderType(file('a', 'gemini'))).toBeNull();
     expect(resolveQuotaProviderType(file('a', 'claude', { disabled: true }))).toBeNull();
@@ -60,26 +59,22 @@ describe('classifyQuotaFiles', () => {
     const entries = classifyQuotaFiles(FILES);
     expect(entries.map((entry) => entry.file.name)).not.toContain('gemini-a.json');
     expect(entries.map((entry) => entry.file.name)).not.toContain('claude-off.json');
-    expect(entries).toHaveLength(5);
+    expect(entries).toHaveLength(4);
   });
 
   test('orders entries by provider tab order', () => {
     const entries = classifyQuotaFiles(FILES);
-    expect(entries.map((entry) => entry.type)).toEqual(['claude', 'codex', 'codex', 'xai', 'kimi']);
+    expect(entries.map((entry) => entry.type)).toEqual(['claude', 'antigravity', 'codex', 'codex']);
   });
 });
 
 describe('buildTabCounts', () => {
   test('counts per provider plus an all total, zero-filling empty tabs', () => {
     expect(buildTabCounts(classifyQuotaFiles(FILES))).toEqual({
-      all: 5,
+      all: 4,
       claude: 1,
-      antigravity: 0,
+      antigravity: 1,
       codex: 2,
-      xai: 1,
-      kimi: 1,
-      devin: 0,
-      meta: 0,
       plugin: 0,
     });
   });
@@ -89,7 +84,7 @@ describe('filterEntriesByTab', () => {
   const entries = classifyQuotaFiles(FILES);
 
   test("passes everything through on the 'all' tab", () => {
-    expect(filterEntriesByTab(entries, 'all')).toHaveLength(5);
+    expect(filterEntriesByTab(entries, 'all')).toHaveLength(4);
   });
 
   test('filters to a single provider', () => {
@@ -97,7 +92,7 @@ describe('filterEntriesByTab', () => {
       'codex-a.json',
       'codex-b.json',
     ]);
-    expect(filterEntriesByTab(entries, 'antigravity')).toEqual([]);
+    expect(filterEntriesByTab(entries, 'plugin')).toEqual([]);
   });
 });
 
@@ -207,15 +202,13 @@ describe('sortQuotaEntries', () => {
       resolver({
         'codex-a.json': 300,
         'claude-a.json': 100,
-        'kimi-a.json': 200,
+        'antigravity-a.json': 200,
         'codex-b.json': 400,
-        'grok-a.json': 50,
       })
     );
     expect(byName(sorted)).toEqual([
-      'grok-a.json',
       'claude-a.json',
-      'kimi-a.json',
+      'antigravity-a.json',
       'codex-a.json',
       'codex-b.json',
     ]);
@@ -226,15 +219,14 @@ describe('sortQuotaEntries', () => {
     const sorted = sortQuotaEntries(
       entries,
       'soonest',
-      resolver({ 'codex-b.json': 200, 'kimi-a.json': 100 })
+      resolver({ 'codex-b.json': 200, 'antigravity-a.json': 100 })
     );
     expect(byName(sorted)).toEqual([
-      'kimi-a.json',
+      'antigravity-a.json',
       'codex-b.json',
       // unresolved tail, in the order classifyQuotaFiles produced
       'claude-a.json',
       'codex-a.json',
-      'grok-a.json',
     ]);
   });
 
