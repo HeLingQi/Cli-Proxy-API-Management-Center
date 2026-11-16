@@ -110,6 +110,7 @@
     "plugins": "Plugins",
     "config_management": "Config Panel",
     "logs": "Logs Viewer",
+    "usage": "Usage & Pricing",
     "system_info": "Management Center Info"
   },
   "nav_groups": {
@@ -129,8 +130,80 @@
     "quota_management": "API keys & limits",
     "plugins": "Install, update & configure",
     "logs": "Request tracing",
+    "usage": "History, events & model prices",
     "config_management": "Gateway configuration",
     "system_info": "Runtime & diagnostics"
+  },
+  "usage": {
+    "title": "Usage & Pricing",
+    "description": "Inspect persisted request usage, audit redacted events, and manage model prices.",
+    "tabs_label": "Usage views",
+    "tabs": {
+      "summary": "Summary",
+      "events": "Events",
+      "pricing": "Pricing"
+    },
+    "load_error": "Failed to load usage data",
+    "metrics": {
+      "requests": "Requests",
+      "tokens": "Tokens",
+      "cost": "Effective cost",
+      "latency": "Average latency"
+    },
+    "columns": {
+      "date": "Date",
+      "time": "Time",
+      "success": "Success",
+      "failed": "Failed",
+      "status": "Status",
+      "provider_model": "Provider / model",
+      "request_id": "Request ID",
+      "provider": "Provider",
+      "model": "Model",
+      "actions": "Actions"
+    },
+    "summary": {
+      "from": "From",
+      "to": "To",
+      "apply": "Apply",
+      "invalid_range": "Choose a valid date range.",
+      "metrics_label": "Usage totals",
+      "success_hint": "{{success}} succeeded · {{failed}} failed",
+      "tokens_hint": "{{input}} input · {{output}} output",
+      "cost_hint": "Upstream reported cost when available, otherwise catalog estimate",
+      "ttft_hint": "Average TTFT: {{value}} ms",
+      "daily_title": "Daily usage",
+      "utc_note": "Calendar days use UTC"
+    },
+    "events": {
+      "title": "Request events",
+      "redacted_note": "Secrets and failure bodies are never stored",
+      "empty": "No usage events yet",
+      "empty_desc": "New requests will appear here after they are persisted.",
+      "success": "Success",
+      "failed": "Failed",
+      "load_more": "Load older events"
+    },
+    "pricing": {
+      "title": "Model prices",
+      "description": "Prices are USD per one million tokens and are used when the upstream does not report cost.",
+      "add": "Add model price",
+      "edit": "Edit model price",
+      "empty": "No model prices configured",
+      "empty_desc": "Add prices to estimate costs for newly recorded requests.",
+      "input": "Input",
+      "output": "Output",
+      "cache_read": "Cache read",
+      "cache_write": "Cache write",
+      "unit_hint": "Enter a non-negative USD price per one million tokens. Up to six decimal places are supported.",
+      "invalid": "Provider, model, and valid non-negative prices are required.",
+      "saved": "Model price saved",
+      "save_error": "Failed to save model price",
+      "deleted": "Model price deleted",
+      "delete_error": "Failed to delete model price",
+      "delete_title": "Delete model price?",
+      "delete_confirm": "Delete pricing for {{provider}} / {{model}}? Existing usage history will not be recalculated."
+    }
   },
   "dashboard": {
     "hero_verdict_good": "All systems steady",
@@ -2129,7 +2202,7 @@
       "activeCount": "{{active}}/{{total}} active"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2192,8 +2265,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "All URLs use the same API conventions. Saving writes only the endpoint for the current grouped protocol.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Global high-protection route",
-         "aiCodeMirrorDomestic": "Mainland China optimized route",
+        "aiCodeMirrorGlobal": "Global high-protection route",
+        "aiCodeMirrorDomestic": "Mainland China optimized route",
         "standard": "Standard URL",
         "direct": "Direct URL",
         "domestic": "China mainland route",
@@ -2202,8 +2275,8 @@
         "global": "Global"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "A high-protection route for global access.",
-         "aiCodeMirrorDomestic": "A route optimized for mainland China networks.",
+        "aiCodeMirrorGlobal": "A high-protection route for global access.",
+        "aiCodeMirrorDomestic": "A route optimized for mainland China networks.",
         "domestic": "For users and workloads in mainland China; usually lower latency in mainland networks.",
         "overseas": "For overseas deployments, cross-border access, or workloads that need overseas models.",
         "mainlandChinaRecommended": "Recommended for users and workloads on mainland China networks.",

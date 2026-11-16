@@ -110,6 +110,7 @@
     "plugins": "플러그인",
     "config_management": "설정 패널",
     "logs": "로그 뷰어",
+    "usage": "사용량 및 요금",
     "system_info": "관리 센터 정보"
   },
   "nav_groups": {
@@ -129,8 +130,76 @@
     "quota_management": "API 키 및 한도",
     "plugins": "설치, 업데이트 및 설정",
     "logs": "요청 추적",
+    "usage": "기록, 이벤트 및 모델 요금",
     "config_management": "게이트웨이 설정",
     "system_info": "런타임 및 진단"
+  },
+  "usage": {
+    "title": "사용량 및 요금",
+    "description": "저장된 요청 사용량과 민감 정보가 제거된 이벤트를 확인하고 모델 요금을 관리합니다.",
+    "tabs_label": "사용량 보기",
+    "tabs": { "summary": "요약", "events": "이벤트", "pricing": "요금" },
+    "load_error": "사용량 데이터를 불러오지 못했습니다",
+    "metrics": {
+      "requests": "요청",
+      "tokens": "토큰",
+      "cost": "적용 비용",
+      "latency": "평균 지연 시간"
+    },
+    "columns": {
+      "date": "날짜",
+      "time": "시간",
+      "success": "성공",
+      "failed": "실패",
+      "status": "상태",
+      "provider_model": "공급자 / 모델",
+      "request_id": "요청 ID",
+      "provider": "공급자",
+      "model": "모델",
+      "actions": "작업"
+    },
+    "summary": {
+      "from": "시작일",
+      "to": "종료일",
+      "apply": "적용",
+      "invalid_range": "올바른 날짜 범위를 선택하세요.",
+      "metrics_label": "사용량 합계",
+      "success_hint": "성공 {{success}} · 실패 {{failed}}",
+      "tokens_hint": "입력 {{input}} · 출력 {{output}}",
+      "cost_hint": "업스트림 보고 비용을 우선 사용하고 없으면 요금표로 추정",
+      "ttft_hint": "평균 TTFT: {{value}} ms",
+      "daily_title": "일별 사용량",
+      "utc_note": "날짜는 UTC 기준"
+    },
+    "events": {
+      "title": "요청 이벤트",
+      "redacted_note": "비밀 정보와 실패 본문은 저장되지 않습니다",
+      "empty": "사용량 이벤트가 없습니다",
+      "empty_desc": "새 요청이 저장되면 여기에 표시됩니다.",
+      "success": "성공",
+      "failed": "실패",
+      "load_more": "이전 이벤트 불러오기"
+    },
+    "pricing": {
+      "title": "모델 요금",
+      "description": "백만 토큰당 USD 요금이며 업스트림에서 비용을 보고하지 않을 때 사용됩니다.",
+      "add": "모델 요금 추가",
+      "edit": "모델 요금 수정",
+      "empty": "설정된 모델 요금이 없습니다",
+      "empty_desc": "새 요청의 비용을 추정하려면 요금을 추가하세요.",
+      "input": "입력",
+      "output": "출력",
+      "cache_read": "캐시 읽기",
+      "cache_write": "캐시 쓰기",
+      "unit_hint": "백만 토큰당 0 이상의 USD 요금을 입력하세요. 소수점 6자리까지 지원합니다.",
+      "invalid": "공급자, 모델 및 올바른 0 이상의 요금이 필요합니다.",
+      "saved": "모델 요금이 저장되었습니다",
+      "save_error": "모델 요금을 저장하지 못했습니다",
+      "deleted": "모델 요금이 삭제되었습니다",
+      "delete_error": "모델 요금을 삭제하지 못했습니다",
+      "delete_title": "모델 요금을 삭제할까요?",
+      "delete_confirm": "{{provider}} / {{model}} 요금을 삭제할까요? 기존 사용량 기록은 다시 계산되지 않습니다."
+    }
   },
   "dashboard": {
     "hero_verdict_good": "모든 시스템 정상",
@@ -2129,7 +2198,7 @@
       "activeCount": "활성 {{active}}/{{total}}"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2192,8 +2261,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "모든 URL은 동일한 API 규칙을 사용합니다. 저장 시 현재 그룹화된 프로토콜의 엔드포인트만 기록됩니다.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "글로벌 고보호 경로",
-         "aiCodeMirrorDomestic": "중국 본토 최적화 경로",
+        "aiCodeMirrorGlobal": "글로벌 고보호 경로",
+        "aiCodeMirrorDomestic": "중국 본토 최적화 경로",
         "standard": "표준 URL",
         "direct": "직접 연결 URL",
         "domestic": "중국 본토 경로",
@@ -2202,8 +2271,8 @@
         "global": "글로벌"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "전 세계 접속을 위한 보호 수준이 높은 경로입니다.",
-         "aiCodeMirrorDomestic": "중국 본토 네트워크에 최적화된 경로입니다.",
+        "aiCodeMirrorGlobal": "전 세계 접속을 위한 보호 수준이 높은 경로입니다.",
+        "aiCodeMirrorDomestic": "중국 본토 네트워크에 최적화된 경로입니다.",
         "domestic": "중국 본토의 사용자 및 워크로드용입니다. 본토 네트워크에서 일반적으로 대기 시간이 더 짧습니다.",
         "overseas": "해외 배포, 국경 간 액세스 또는 해외 모델이 필요한 워크로드용입니다.",
         "mainlandChinaRecommended": "중국 본토 네트워크의 사용자 및 워크로드에 권장됩니다.",

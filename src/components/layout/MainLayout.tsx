@@ -29,6 +29,7 @@ import {
   IconSidebarQuota,
   IconSidebarRouting,
   IconSidebarSystem,
+  IconDollarSign,
   IconChevronDown,
 } from '@/components/ui/icons';
 import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
@@ -65,6 +66,7 @@ const sidebarIcons: Record<string, ReactNode> = {
   plugins: <IconSidebarPlugins size={18} />,
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
+  usage: <IconDollarSign size={18} />,
   system: <IconSidebarSystem size={18} />,
 };
 
@@ -659,6 +661,12 @@ export function MainLayout() {
           labelKey: 'nav.logs',
           metaKey: 'nav_meta.logs',
           icon: sidebarIcons.logs,
+        },
+        {
+          path: '/usage',
+          labelKey: 'nav.usage',
+          metaKey: 'nav_meta.usage',
+          icon: sidebarIcons.usage,
         },
       ],
     },

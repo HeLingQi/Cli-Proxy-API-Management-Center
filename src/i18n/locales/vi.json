@@ -110,6 +110,7 @@
     "plugins": "Plugin",
     "config_management": "Bảng cấu hình",
     "logs": "Trình xem Log",
+    "usage": "Mức dùng & giá",
     "system_info": "Thông tin Trung tâm Quản lý"
   },
   "nav_groups": {
@@ -129,8 +130,76 @@
     "quota_management": "API key & giới hạn",
     "plugins": "Cài đặt, cập nhật & cấu hình",
     "logs": "Truy vết yêu cầu",
+    "usage": "Lịch sử, sự kiện & giá model",
     "config_management": "Cấu hình gateway",
     "system_info": "Runtime & chẩn đoán"
+  },
+  "usage": {
+    "title": "Mức dùng & giá",
+    "description": "Xem mức dùng đã lưu, kiểm tra sự kiện đã ẩn dữ liệu nhạy cảm và quản lý giá model.",
+    "tabs_label": "Chế độ xem mức dùng",
+    "tabs": { "summary": "Tổng quan", "events": "Sự kiện", "pricing": "Bảng giá" },
+    "load_error": "Không thể tải dữ liệu mức dùng",
+    "metrics": {
+      "requests": "Yêu cầu",
+      "tokens": "Token",
+      "cost": "Chi phí hiệu lực",
+      "latency": "Độ trễ trung bình"
+    },
+    "columns": {
+      "date": "Ngày",
+      "time": "Thời gian",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "status": "Trạng thái",
+      "provider_model": "Provider / model",
+      "request_id": "ID yêu cầu",
+      "provider": "Provider",
+      "model": "Model",
+      "actions": "Thao tác"
+    },
+    "summary": {
+      "from": "Từ ngày",
+      "to": "Đến ngày",
+      "apply": "Áp dụng",
+      "invalid_range": "Vui lòng chọn khoảng ngày hợp lệ.",
+      "metrics_label": "Tổng mức dùng",
+      "success_hint": "{{success}} thành công · {{failed}} thất bại",
+      "tokens_hint": "{{input}} đầu vào · {{output}} đầu ra",
+      "cost_hint": "Ưu tiên chi phí upstream, nếu không sẽ ước tính theo bảng giá",
+      "ttft_hint": "TTFT trung bình: {{value}} ms",
+      "daily_title": "Mức dùng hằng ngày",
+      "utc_note": "Ngày lịch dùng múi giờ UTC"
+    },
+    "events": {
+      "title": "Sự kiện yêu cầu",
+      "redacted_note": "Secret và nội dung lỗi không bao giờ được lưu",
+      "empty": "Chưa có sự kiện mức dùng",
+      "empty_desc": "Yêu cầu mới sẽ xuất hiện sau khi được lưu.",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "load_more": "Tải sự kiện cũ hơn"
+    },
+    "pricing": {
+      "title": "Giá model",
+      "description": "Giá USD trên một triệu token, dùng khi upstream không báo chi phí.",
+      "add": "Thêm giá model",
+      "edit": "Sửa giá model",
+      "empty": "Chưa cấu hình giá model",
+      "empty_desc": "Thêm giá để ước tính chi phí cho yêu cầu mới.",
+      "input": "Đầu vào",
+      "output": "Đầu ra",
+      "cache_read": "Đọc cache",
+      "cache_write": "Ghi cache",
+      "unit_hint": "Nhập giá USD không âm trên một triệu token, tối đa 6 chữ số thập phân.",
+      "invalid": "Cần provider, model và giá không âm hợp lệ.",
+      "saved": "Đã lưu giá model",
+      "save_error": "Không thể lưu giá model",
+      "deleted": "Đã xóa giá model",
+      "delete_error": "Không thể xóa giá model",
+      "delete_title": "Xóa giá model?",
+      "delete_confirm": "Xóa giá của {{provider}} / {{model}}? Lịch sử mức dùng sẽ không được tính lại."
+    }
   },
   "dashboard": {
     "hero_verdict_good": "Mọi hệ thống ổn định",
@@ -2001,7 +2070,7 @@
       "activeCount": "{{active}}/{{total}} đang hoạt động"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "gemini": "Gemini",
       "interactions": "Interactions API",
       "codex": "Codex",
@@ -2067,8 +2136,8 @@
       "urlMode": "URL {{provider}}",
       "urlHint": "Mọi URL dùng cùng quy ước API. Lưu chỉ ghi endpoint của giao thức được nhóm hiện tại.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Tuyến toàn cầu được bảo vệ cao",
-         "aiCodeMirrorDomestic": "Tuyến tối ưu cho Trung Quốc đại lục",
+        "aiCodeMirrorGlobal": "Tuyến toàn cầu được bảo vệ cao",
+        "aiCodeMirrorDomestic": "Tuyến tối ưu cho Trung Quốc đại lục",
         "standard": "URL chuẩn",
         "direct": "URL trực tiếp",
         "domestic": "Tuyến Trung Quốc đại lục",
@@ -2077,8 +2146,8 @@
         "global": "Toàn cầu"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "Tuyến có mức bảo vệ cao dành cho truy cập toàn cầu.",
-         "aiCodeMirrorDomestic": "Tuyến được tối ưu cho mạng tại Trung Quốc đại lục.",
+        "aiCodeMirrorGlobal": "Tuyến có mức bảo vệ cao dành cho truy cập toàn cầu.",
+        "aiCodeMirrorDomestic": "Tuyến được tối ưu cho mạng tại Trung Quốc đại lục.",
         "domestic": "Dành cho người dùng và khối lượng công việc tại Trung Quốc đại lục; thường có độ trễ thấp hơn trên mạng đại lục.",
         "overseas": "Dành cho triển khai nước ngoài, truy cập xuyên biên giới hoặc khối lượng công việc cần model nước ngoài.",
         "mainlandChinaRecommended": "Khuyến nghị cho người dùng và khối lượng công việc trên mạng Trung Quốc đại lục.",

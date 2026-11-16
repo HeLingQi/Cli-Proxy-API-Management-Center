@@ -110,6 +110,7 @@
     "plugins": "Eklentiler",
     "config_management": "Yapılandırma Paneli",
     "logs": "Günlük Görüntüleyici",
+    "usage": "Kullanım ve fiyatlandırma",
     "system_info": "Yönetim Merkezi Bilgisi"
   },
   "nav_groups": {
@@ -129,8 +130,76 @@
     "quota_management": "API Anahtarları ve Sınırlar",
     "plugins": "Kurulum, güncelleme ve yapılandırma",
     "logs": "İstek İzleme",
+    "usage": "Geçmiş, olaylar ve model fiyatları",
     "config_management": "Ağ Geçidi Yapılandırması",
     "system_info": "Çalışma Zamanı ve Tanılama"
+  },
+  "usage": {
+    "title": "Kullanım ve fiyatlandırma",
+    "description": "Kalıcı istek kullanımını ve gizlenmiş olayları inceleyin, model fiyatlarını yönetin.",
+    "tabs_label": "Kullanım görünümleri",
+    "tabs": { "summary": "Özet", "events": "Olaylar", "pricing": "Fiyatlar" },
+    "load_error": "Kullanım verileri yüklenemedi",
+    "metrics": {
+      "requests": "İstekler",
+      "tokens": "Tokenlar",
+      "cost": "Etkin maliyet",
+      "latency": "Ortalama gecikme"
+    },
+    "columns": {
+      "date": "Tarih",
+      "time": "Saat",
+      "success": "Başarılı",
+      "failed": "Başarısız",
+      "status": "Durum",
+      "provider_model": "Sağlayıcı / model",
+      "request_id": "İstek kimliği",
+      "provider": "Sağlayıcı",
+      "model": "Model",
+      "actions": "İşlemler"
+    },
+    "summary": {
+      "from": "Başlangıç",
+      "to": "Bitiş",
+      "apply": "Uygula",
+      "invalid_range": "Geçerli bir tarih aralığı seçin.",
+      "metrics_label": "Kullanım toplamları",
+      "success_hint": "{{success}} başarılı · {{failed}} başarısız",
+      "tokens_hint": "{{input}} giriş · {{output}} çıkış",
+      "cost_hint": "Varsa yukarı akış maliyeti, yoksa katalog tahmini",
+      "ttft_hint": "Ortalama TTFT: {{value}} ms",
+      "daily_title": "Günlük kullanım",
+      "utc_note": "Takvim günleri UTC kullanır"
+    },
+    "events": {
+      "title": "İstek olayları",
+      "redacted_note": "Gizli bilgiler ve hata gövdeleri saklanmaz",
+      "empty": "Henüz kullanım olayı yok",
+      "empty_desc": "Yeni istekler kalıcı hale geldikten sonra burada görünür.",
+      "success": "Başarılı",
+      "failed": "Başarısız",
+      "load_more": "Daha eski olayları yükle"
+    },
+    "pricing": {
+      "title": "Model fiyatları",
+      "description": "Fiyatlar milyon token başına USD cinsindedir ve yukarı akış maliyet bildirmediğinde kullanılır.",
+      "add": "Model fiyatı ekle",
+      "edit": "Model fiyatını düzenle",
+      "empty": "Model fiyatı yapılandırılmadı",
+      "empty_desc": "Yeni isteklerin maliyetini tahmin etmek için fiyat ekleyin.",
+      "input": "Giriş",
+      "output": "Çıkış",
+      "cache_read": "Önbellek okuma",
+      "cache_write": "Önbellek yazma",
+      "unit_hint": "Milyon token başına negatif olmayan USD fiyatını girin. En fazla 6 ondalık basamak desteklenir.",
+      "invalid": "Sağlayıcı, model ve geçerli negatif olmayan fiyatlar gereklidir.",
+      "saved": "Model fiyatı kaydedildi",
+      "save_error": "Model fiyatı kaydedilemedi",
+      "deleted": "Model fiyatı silindi",
+      "delete_error": "Model fiyatı silinemedi",
+      "delete_title": "Model fiyatı silinsin mi?",
+      "delete_confirm": "{{provider}} / {{model}} fiyatı silinsin mi? Mevcut kullanım geçmişi yeniden hesaplanmaz."
+    }
   },
   "dashboard": {
     "hero_verdict_good": "Tüm Sistemler Dengede",
@@ -2129,7 +2198,7 @@
       "activeCount": "{{active}} / {{total}} Aktif"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2192,8 +2261,8 @@
       "urlMode": "{{provider}} URL'si",
       "urlHint": "Tüm URL'ler Aynı API Kurallarını Kullanır. Kayıt Yalnızca Geçerli Gruplanmış Protokolün Uç Noktasını Yazar.",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "Yüksek Korumalı Küresel Rota",
-         "aiCodeMirrorDomestic": "Çin Ana Karası için Optimize Edilmiş Rota",
+        "aiCodeMirrorGlobal": "Yüksek Korumalı Küresel Rota",
+        "aiCodeMirrorDomestic": "Çin Ana Karası için Optimize Edilmiş Rota",
         "standard": "Standart URL",
         "direct": "Doğrudan URL",
         "domestic": "Çin Ana Karası Rotası",
@@ -2202,8 +2271,8 @@
         "global": "Küresel"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "Küresel erişim için yüksek korumalı bir rota.",
-         "aiCodeMirrorDomestic": "Çin ana karasındaki ağlar için optimize edilmiş bir rota.",
+        "aiCodeMirrorGlobal": "Küresel erişim için yüksek korumalı bir rota.",
+        "aiCodeMirrorDomestic": "Çin ana karasındaki ağlar için optimize edilmiş bir rota.",
         "domestic": "Çin Ana Karasındaki Kullanıcılar ve İş Yükleri için. Ana Kara Ağlarında Genellikle Daha Düşük Gecikme.",
         "overseas": "Yurt Dışı Dağıtımlar, Sınır Ötesi Erişim veya Yurt Dışı Modeller Gerektiren İş Yükleri için.",
         "mainlandChinaRecommended": "Çin Ana Karası Ağlarındaki Kullanıcılar ve İş Yükleri için Önerilir.",

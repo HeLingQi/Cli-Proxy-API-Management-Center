@@ -110,6 +110,7 @@
     "plugins": "插件",
     "config_management": "配置面板",
     "logs": "日志查看",
+    "usage": "用量与定价",
     "system_info": "中心信息"
   },
   "nav_groups": {
@@ -129,8 +130,80 @@
     "quota_management": "API Key 与限额",
     "plugins": "安装、更新与配置",
     "logs": "请求追踪与排查",
+    "usage": "历史、事件与模型价格",
     "config_management": "网关基础配置",
     "system_info": "运行与诊断信息"
+  },
+  "usage": {
+    "title": "用量与定价",
+    "description": "查看持久化请求用量、审计脱敏事件并管理模型价格。",
+    "tabs_label": "用量视图",
+    "tabs": {
+      "summary": "汇总",
+      "events": "事件",
+      "pricing": "定价"
+    },
+    "load_error": "加载用量数据失败",
+    "metrics": {
+      "requests": "请求数",
+      "tokens": "Token 数",
+      "cost": "有效成本",
+      "latency": "平均延迟"
+    },
+    "columns": {
+      "date": "日期",
+      "time": "时间",
+      "success": "成功",
+      "failed": "失败",
+      "status": "状态",
+      "provider_model": "提供商 / 模型",
+      "request_id": "请求 ID",
+      "provider": "提供商",
+      "model": "模型",
+      "actions": "操作"
+    },
+    "summary": {
+      "from": "开始日期",
+      "to": "结束日期",
+      "apply": "应用",
+      "invalid_range": "请选择有效的日期范围。",
+      "metrics_label": "用量汇总",
+      "success_hint": "成功 {{success}} · 失败 {{failed}}",
+      "tokens_hint": "输入 {{input}} · 输出 {{output}}",
+      "cost_hint": "优先使用上游报告成本，否则使用价格目录估算",
+      "ttft_hint": "平均首字延迟：{{value}} ms",
+      "daily_title": "每日用量",
+      "utc_note": "自然日按 UTC 计算"
+    },
+    "events": {
+      "title": "请求事件",
+      "redacted_note": "密钥和失败响应正文不会被存储",
+      "empty": "暂无用量事件",
+      "empty_desc": "新请求持久化后会显示在这里。",
+      "success": "成功",
+      "failed": "失败",
+      "load_more": "加载更早事件"
+    },
+    "pricing": {
+      "title": "模型价格",
+      "description": "价格单位为美元/百万 Token，用于上游未报告成本时的估算。",
+      "add": "添加模型价格",
+      "edit": "编辑模型价格",
+      "empty": "尚未配置模型价格",
+      "empty_desc": "添加价格后，新记录的请求即可估算成本。",
+      "input": "输入",
+      "output": "输出",
+      "cache_read": "缓存读取",
+      "cache_write": "缓存写入",
+      "unit_hint": "请输入每百万 Token 的非负美元价格，最多支持 6 位小数。",
+      "invalid": "请填写提供商、模型及有效的非负价格。",
+      "saved": "模型价格已保存",
+      "save_error": "保存模型价格失败",
+      "deleted": "模型价格已删除",
+      "delete_error": "删除模型价格失败",
+      "delete_title": "删除模型价格？",
+      "delete_confirm": "确定删除 {{provider}} / {{model}} 的价格吗？已有用量历史不会重新计算。"
+    }
   },
   "dashboard": {
     "hero_verdict_good": "运行平稳",
@@ -2123,7 +2196,7 @@
       "activeCount": "{{active}}/{{total}} 活跃"
     },
     "providerNames": {
-       "aiCodeMirror": "AIcodemirror",
+      "aiCodeMirror": "AIcodemirror",
       "meta": "Muse (Meta)",
       "gemini": "Gemini",
       "interactions": "Interactions API",
@@ -2186,8 +2259,8 @@
       "urlMode": "{{provider}} URL",
       "urlHint": "不同 URL 的使用规范一致,保存时只会写入当前分组协议对应地址。",
       "urlOptions": {
-         "aiCodeMirrorGlobal": "全球高保线路",
-         "aiCodeMirrorDomestic": "国内优化线路",
+        "aiCodeMirrorGlobal": "全球高保线路",
+        "aiCodeMirrorDomestic": "国内优化线路",
         "standard": "普通 URL",
         "direct": "专线直连 URL",
         "domestic": "国内线路",
@@ -2196,8 +2269,8 @@
         "global": "全球"
       },
       "urlOptionDescriptions": {
-         "aiCodeMirrorGlobal": "适用于全球访问的高防护线路。",
-         "aiCodeMirrorDomestic": "针对中国大陆网络优化的线路。",
+        "aiCodeMirrorGlobal": "适用于全球访问的高防护线路。",
+        "aiCodeMirrorDomestic": "针对中国大陆网络优化的线路。",
         "domestic": "面向中国大陆用户和部署在中国大陆网络环境中的业务，通常可获得更低延迟。",
         "overseas": "面向海外部署、跨境访问或需要访问境外模型的业务。",
         "mainlandChinaRecommended": "推荐中国大陆用户和部署在中国大陆网络环境中的业务使用。",
